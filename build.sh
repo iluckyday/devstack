@@ -199,7 +199,7 @@ find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
 EOF
 
-DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 >/dev/null && DEBIAN_FRONTEND=noninteractive apt-get install -y python3-diskimage-builder 2>&1 >/dev/null
+DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 >/dev/null && DEBIAN_FRONTEND=noninteractive apt-get install -y python3-diskimage-builder qemu-system-x86 2>&1 >/dev/null
 
 sleep 2
 
@@ -212,6 +212,7 @@ DIB_EXTLINUX=1 \
 ELEMENTS_PATH=/tmp/devstack/elements \
 DIB_RELEASE=$dib_release \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
+DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git" \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --exclude=unattended-upgrades" \
@@ -223,6 +224,12 @@ DIB_DEV_USER_AUTHORIZED_KEYS=/tmp/devstack/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
 
+/usr/bin/qemu-system-x86_64 -machine q35,accel=kvm -m 8G -device intel-iommu -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user
+
 sleep 10
 
 qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /tmp/devstack.cmp.img
+
+sleep 5
+
+exit 0
