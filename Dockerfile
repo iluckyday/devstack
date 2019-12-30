@@ -3,7 +3,7 @@ FROM debian as builder
 #COPY build.sh /tmp/
 #RUN chmod +x /tmp/build.sh
 #RUN /tmp/build.sh
-RUN busybox free -m
+RUN cat /proc/meminfo
 
 
 #FROM scratch
