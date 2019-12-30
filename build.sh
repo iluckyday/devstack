@@ -199,6 +199,10 @@ find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
 EOF
 
+DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 >/dev/null && DEBIAN_FRONTEND=noninteractive apt-get install -y python3-diskimage-builder 2>&1 >/dev/null
+
+sleep 2
+
 sed -i -e 's/4096/16384/' -e 's/size=64/size=0 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
 DIB_QUIET=1 \
