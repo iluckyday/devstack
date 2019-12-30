@@ -4,7 +4,6 @@ FROM debian as builder
 #RUN chmod +x /tmp/build.sh
 #RUN /tmp/build.sh
 RUN df -h
-RUN free -h
 RUN lscpu
 
 
