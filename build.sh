@@ -224,7 +224,7 @@ DIB_DEV_USER_AUTHORIZED_KEYS=/tmp/devstack/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
 
-/usr/bin/qemu-system-x86_64 -machine q35,accel=kvm -m 8G -device intel-iommu -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user
+/usr/bin/qemu-system-x86_64 -machine q35,accel=kvm -m 3G -device intel-iommu -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user
 
 sleep 10
 
