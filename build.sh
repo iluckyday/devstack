@@ -200,7 +200,7 @@ find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
 EOF
 
-DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 >/dev/null && DEBIAN_FRONTEND=noninteractive apt-get install -y python3-diskimage-builder qemu-system-x86 2>&1 >/dev/null
+DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 >/dev/null && DEBIAN_FRONTEND=noninteractive apt-get install -y sudo python3-diskimage-builder qemu-system-x86 2>&1 >/dev/null
 
 sleep 2
 
