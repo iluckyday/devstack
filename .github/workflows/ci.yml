@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: lsmod
-        run: lsmod
+      - name: modprobe loop
+        run: sudo modprobe loop
 
       - name: Install python3-diskimage-builder
         run: sudo pip3 install diskimage-builder
