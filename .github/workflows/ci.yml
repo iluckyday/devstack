@@ -15,7 +15,7 @@ jobs:
         run: sudo apt update && sudo apt-get install -y python3-diskimage-builder qemu-system-x86
 
       - name: Build devstack.xz
-        run: sudo /bin/bash build.sh
+        run: sudo /bin/bash githubci/build.sh
 
       - name: Install ffsend
         run: |
