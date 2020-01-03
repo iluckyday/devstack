@@ -200,7 +200,6 @@ find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
 EOF
 
-ls -lR /usr/lib/python3/dist-packages
 sed -i -e 's/4096/16384/' -e 's/size=64/size=0 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
 #DIB_QUIET=1 \
