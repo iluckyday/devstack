@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# make available openstack image used for qemu with user network.
-
 sed -i '/src/d' /etc/apt/sources.list
 rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst
 
@@ -203,7 +201,7 @@ EOF
 
 sed -i -e 's/4096/16384/' -e 's/size=64/size=0 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
-DIB_QUIET=1 \
+#DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
@@ -224,5 +222,8 @@ disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd dev
 
 sleep 1
 
+qemu-system-x86_64 -machine q35,accel=kvm,usb=off -cpu host -smp 2 -m 6G -device intel-iommu -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
+
+sleep 1
+
 qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /tmp/devstack.cmp.img
-xz -z -T 2 -9 -c -e /tmp/devstack.cmp.img > /tmp/devstack.xz

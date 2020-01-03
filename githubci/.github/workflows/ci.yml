@@ -12,7 +12,10 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: Install python3-diskimage-builder
-        run: sudo apt update && sudo apt-get install -y python3-diskimage-builder
+        run: sudo apt update && sudo apt-get install -y python3-diskimage-builder qemu-system-x86
+
+      - name: Build devstack.xz
+        run: sudo /bin/bash build.sh
 
       - name: Install ffsend
         run: |
@@ -20,8 +23,5 @@ jobs:
           curl -skL -o /tmp/ffsend https://github.com/timvisee/ffsend/releases/download/"$ffsend_ver"/ffsend-"$ffsend_ver"-linux-x64-static
           chmod +x /tmp/ffsend
 
-      - name: Build devstack.xz
-        run: sudo /bin/bash build.sh
-
       - name: Push to Firefox Send
-        run: /tmp/ffsend  -Ifyq upload /tmp/devstack.xz
+        run: /tmp/ffsend  -Ifyq upload /tmp/devstack.cmp.img
