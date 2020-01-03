@@ -17,6 +17,9 @@ jobs:
       - name: test1
         run: free -h
 
+      - name: test3
+        run: systemd-detect-virt
+
       - name: Install python3-diskimage-builder
         run: sudo pip3 install diskimage-builder
 
