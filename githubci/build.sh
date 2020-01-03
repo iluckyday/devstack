@@ -223,7 +223,7 @@ disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd dev
 
 sleep 1
 
-qemu-system-x86_64 -machine q35,accel=kvm,usb=off -cpu host -smp 2 -m 4G -device intel-iommu -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
+qemu-system-x86_64 -machine q35 -smp 2 -m 4G -device intel-iommu -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
 
 sleep 1
 
