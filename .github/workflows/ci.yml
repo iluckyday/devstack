@@ -14,10 +14,10 @@ jobs:
       - name: Install python3-diskimage-builder
         run: sudo pip3 install diskimage-builder
 
-      - name: Install qemu
-        run: sudo apt update && sudo apt-get install -qqy qemu-system-x86
+      - name: Install required packages
+        run: sudo apt update && sudo apt-get install -qqy debootstrap qemu-system-x86
 
-      - name: Build devstack.xz
+      - name: Build devstack.cmp.img
         run: sudo /bin/bash githubci/build.sh
 
       - name: Install ffsend
