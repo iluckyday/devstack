@@ -11,6 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
+      - name: test
+        run: df -h
+
+      - name: test1
+        run: free -h
+
       - name: Install python3-diskimage-builder
         run: sudo pip3 install diskimage-builder
 
