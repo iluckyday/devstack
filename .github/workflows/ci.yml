@@ -11,14 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: modprobe loop
-        run: sudo modprobe loop
-
       - name: Install python3-diskimage-builder
         run: sudo pip3 install diskimage-builder
 
       - name: Install required packages
-        run: sudo apt update && sudo apt-get install -qqy debootstrap qemu-system-x86
+        run: sudo apt update && sudo apt-get install -qqy debootstrap kpartx qemu-system-x86
 
       - name: Build devstack.cmp.img
         run: sudo /bin/bash githubci/build.sh
