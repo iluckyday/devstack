@@ -130,6 +130,7 @@ SuccessAction=poweroff
 [Service]
 Type=oneshot
 User=stack
+StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -176,7 +177,7 @@ LIBVIRT_TYPE=kvm
 DOWNLOAD_DEFAULT_IMAGES=False
 RECLONE=yes
 FORCE=yes
-LOGFILE=/tmp/stack.sh.log
+#   LOGFILE=/tmp/stack.sh.log
 VERBOSE=False
 SYSLOG=True
 ENABLE_DEBUG_LOG_LEVEL=False
