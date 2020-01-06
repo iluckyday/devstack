@@ -2,8 +2,8 @@ dist: bionic
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get -qqy install debootstrap kpartx qemu-system-x86
-  - sudo pip install diskimage-builder
+  - sudo apt-get -qqy install debootstrap kpartx qemu-system-x86 python3-pip
+  - sudo pip3 install diskimage-builder
 
 script:
   - sudo /bin/bash travisci/build.sh
