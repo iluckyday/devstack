@@ -26,5 +26,10 @@ jobs:
           curl -skL -o /tmp/ffsend https://github.com/timvisee/ffsend/releases/download/"$ffsend_ver"/ffsend-"$ffsend_ver"-linux-x64-static
           chmod +x /tmp/ffsend
 
+      - name: ls
+        run: ls -lh /tmp/devstack.cmp.img
+
       - name: Push to Firefox Send
-        run: /tmp/ffsend  -Ifyq upload /tmp/devstack.cmp.img
+        run: /tmp/ffsend -Ifyq upload /tmp/devstack.cmp.img
+        env:
+          FFSEND_BASIC_AUTH: ${{ secrets.FFSEND_BASIC_AUTH }}
