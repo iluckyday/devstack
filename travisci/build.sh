@@ -57,12 +57,12 @@ cat << EOF > /etc/profile.d/python.sh
 export PYTHONDONTWRITEBYTECODE=1
 EOF
 
-cat << EOF > /tmp/devstack/files/etc/systemd/system-environment-generators/20-python.sh
+cat << EOF > /tmp/devstack/files/etc/systemd/system-environment-generators/20-python
 #!/bin/sh
 
 echo 'PYTHONDONTWRITEBYTECODE=1'
 EOF
-chmod +x /tmp/devstack/files/etc/systemd/system-environment-generators/20-python.sh
+chmod +x /tmp/devstack/files/etc/systemd/system-environment-generators/20-python
 
 cat << EOF > /tmp/devstack/files/etc/apt/apt.conf.d/99-freedisk
 APT::Authentication "0";
@@ -200,7 +200,7 @@ find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
 EOF
 
-pip list
+pip show diskimage_builder
 
 sed -i -e 's/4096/16384/' -e 's/size=64/size=0 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
