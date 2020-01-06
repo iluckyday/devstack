@@ -3,7 +3,7 @@ dist: bionic
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get -qqy install debootstrap kpartx qemu-system-x86 python3-pip
+  - sudo apt-get -qqy install debootstrap kpartx qemu-system-x86 qemu-utils python3-pip
   - sudo pip3 install diskimage-builder
 
 script:
