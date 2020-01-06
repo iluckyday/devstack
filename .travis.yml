@@ -1,0 +1,15 @@
+language: python
+dist: bionic
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -qqy install debootstrap kpartx qemu-system-x86
+  - sudo pip3 install diskimage-builder
+
+script:
+  - sudo /bin/bash travisci/build.sh
+
+after_success:
+  - sudo /bin/bash travisci/install-ffsend.sh
+  - ls -lh /tmp/devstack.cmp.img
+  - ffsend -Ifyq upload /tmp/devstack.cmp.img

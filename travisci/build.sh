@@ -130,6 +130,7 @@ SuccessAction=poweroff
 [Service]
 Type=oneshot
 User=stack
+StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -176,12 +177,9 @@ LIBVIRT_TYPE=kvm
 DOWNLOAD_DEFAULT_IMAGES=False
 RECLONE=yes
 FORCE=yes
-LOGFILE=/tmp/stack.sh.log
-#   VERBOSE=False
-VERBOSE=True
+VERBOSE=False
 SYSLOG=True
-#   ENABLE_DEBUG_LOG_LEVEL=False
-ENABLE_DEBUG_LOG_LEVEL=True
+ENABLE_DEBUG_LOG_LEVEL=False
 DEBUG_LIBVIRT=False
 EOF
 
@@ -203,10 +201,7 @@ rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/sh
 EOF
 
 sed -i -e 's/4096/16384/' -e 's/size=64/size=0 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
-cat `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
-#DIB_QUIET=1 \
-DIB_DEBUG_TRACE=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
@@ -228,7 +223,7 @@ disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd dev
 sleep 1
 
 #qemu-system-x86_64 -machine q35 -smp 2 -m 4G -device intel-iommu -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
-#qemu-system-x86_64 -machine q35 -smp "$(nproc)" -m 4G -nographic -vga std -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
+qemu-system-x86_64 -machine q35,accel=kvm,usb=off -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
 
 sleep 1
 
