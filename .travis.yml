@@ -1,7 +1,4 @@
 dist: bionic
-language: python
-virtualenv:
-  system_site_packages: true
 
 before_install:
   - sudo apt-get update
