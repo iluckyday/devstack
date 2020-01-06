@@ -10,6 +10,5 @@ script:
   - sudo /bin/bash travisci/build.sh
 
 after_success:
-  - sudo /bin/bash travisci/install-ffsend.sh
   - ls -lh /tmp/devstack.cmp.img
-  - ffsend -Ifyq upload /tmp/devstack.cmp.img
+  - sudo /bin/bash travisci/ffsend.sh
