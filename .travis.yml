@@ -7,7 +7,7 @@ dist: bionic
 #  - sudo pip3 install diskimage-builder
 
 script:
-  - dd if=/dev/zero of=/tmp/test bs=1M count=2048
+  - dd if=/dev/zero of=/tmp/test bs=1M count=1000
   - sudo /bin/bash travisci/ffsend.sh /tmp/test
 #  - sudo /bin/bash travisci/build.sh
 
