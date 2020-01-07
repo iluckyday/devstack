@@ -12,5 +12,5 @@ for file in /tmp/devstack.cmp.img.*;
 do
   FFSEND_URL=$(/tmp/ffsend -Ifyq upload $file)
   data=${FFSEND_URL/\#/%23}
-  curl -skL "http://wxpusher.zjiecode.com/api/send/message/?appToken=$WXPUSHER_APPTOKEN&uid=$WXPUSHER_UID&content=$data"
+  curl -skL "http://wxpusher.zjiecode.com/api/send/message/?appToken=$WXPUSHER_APPTOKEN&uid=$WXPUSHER_UID&content=$data" >/dev/null &2>1
 done
