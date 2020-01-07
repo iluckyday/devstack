@@ -185,13 +185,10 @@ EOF
 
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install.sh
 #!/bin/bash
-set -ex
 
-ip address
-lsmod
-systemctl status systemd-sysctl.service
-exit 0
+sudo journalctl -j -r systemd-sysctl.service
 
+exit
 
 git clone https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.local.conf /tmp/devstack/local.conf
