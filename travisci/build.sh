@@ -130,6 +130,7 @@ SuccessAction=poweroff
 [Service]
 Type=oneshot
 User=stack
+StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -183,7 +184,7 @@ DEBUG_LIBVIRT=False
 EOF
 
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install.sh
-#!/bin/bash
+#!/bin/bash -ex
 
 git clone https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.local.conf /tmp/devstack/local.conf
