@@ -186,7 +186,6 @@ EOF
 
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install.sh
 #!/bin/bash
-set -ex
 
 git clone https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.local.conf /tmp/devstack/local.conf
@@ -195,6 +194,7 @@ EOF
 
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install-post.sh
 #!/bin/bash
+
 find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
@@ -207,7 +207,7 @@ DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=/tmp/devstack/elements \
-DIB_RELEASE=focal \
+DIB_RELEASE=eoan \
 DIB_UBUNTU_KERNEL=linux-image-virtual \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
