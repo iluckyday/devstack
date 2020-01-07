@@ -2,9 +2,6 @@ os: linux
 dist: bionic
 language: minimal
 
-env:
-  - DEBIAN_FRONTEND: noninteractive
-
 before_install:
   - sudo apt-get update
   - sudo apt-get -qqy install debootstrap kpartx qemu-system-x86 qemu-utils python3-pip
@@ -14,5 +11,4 @@ script:
   - sudo /bin/bash travisci/build.sh
 
 after_success:
-  - ls -lh /tmp/devstack.cmp.img
   - /bin/bash ffsend.sh
