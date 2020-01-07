@@ -186,7 +186,7 @@ EOF
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install.sh
 #!/bin/bash
 
-sudo journalctl -r systemd-sysctl.service
+sudo journalctl -r -u systemd-sysctl.service
 
 exit
 
