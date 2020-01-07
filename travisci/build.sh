@@ -130,7 +130,6 @@ SuccessAction=poweroff
 [Service]
 Type=oneshot
 User=stack
-StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -188,8 +187,6 @@ cat << EOF > /tmp/devstack/files/home/stack/.devstack-install.sh
 
 git clone https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.local.conf /tmp/devstack/local.conf
-# sudo pip3 install --upgrade pip
-# sed -i 's/,<10//' /tmp/devstack/tools/cap-pip.txt
 /tmp/devstack/stack.sh
 EOF
 
@@ -222,10 +219,19 @@ DIB_DEV_USER_AUTHORIZED_KEYS=/tmp/devstack/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
 
-sleep 1
+sync
+sync
 
-qemu-system-x86_64 -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G --nodefaults -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
-sleep 1
+while pgrep -f "devstack-building" > /dev/null
+do
+    echo Building...
+    sleep 60
+done
+
+echo converting...
 
 qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /tmp/devstack.cmp.img
+
+exit 0
