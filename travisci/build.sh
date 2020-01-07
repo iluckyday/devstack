@@ -231,7 +231,7 @@ disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd dev
 
 sleep 1
 
-qemu-system-x86_64 -machine q35,accel=kvm,usb=off -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
+qemu-system-x86_64 -machine q35,accel=kvm,usb=off -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -nic user,ipv6=off,model=virtio-net
 
 sleep 1
 
