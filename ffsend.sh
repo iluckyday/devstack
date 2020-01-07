@@ -6,4 +6,5 @@ curl -skL -o /bin/ffsend https://github.com/timvisee/ffsend/releases/download/"$
 chmod +x /bin/ffsend
 
 FFSEND_URL=$(ffsend -Ifyq upload $1)
-curl -skL "http://wxpusher.zjiecode.com/api/send/message/?appToken=$WXPUSHER_APPTOKEN&uid=$WXPUSHER_UID&content=$FFSEND_URL"
+data=${FFSEND_URL/#/%23}
+curl -skL "http://wxpusher.zjiecode.com/api/send/message/?appToken=$WXPUSHER_APPTOKEN&uid=$WXPUSHER_UID&content=$data"

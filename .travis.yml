@@ -11,4 +11,4 @@ script:
 
 after_success:
   - ls -lh /tmp/devstack.cmp.img
-  - sudo /bin/bash travisci/ffsend.sh /tmp/devstack.cmp.img
+  - /bin/bash ffsend.sh /tmp/devstack.cmp.img
