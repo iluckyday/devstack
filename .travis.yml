@@ -1,6 +1,6 @@
 os: linux
 dist: bionic
-language: minimal
+language: shell
 
 before_install:
   - sudo apt-get update
