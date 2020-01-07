@@ -125,12 +125,11 @@ Description=DevStack Install Service
 Wants=network-online.target
 After=network-online.target
 ConditionPathExists=!/etc/devstack-version
-#SuccessAction=poweroff
+SuccessAction=poweroff
 
 [Service]
 Type=oneshot
 User=stack
-#StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -190,7 +189,7 @@ git clone https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.local.conf /tmp/devstack/local.conf
 # sudo pip3 install --upgrade pip
 # sed -i 's/,<10//' /tmp/devstack/tools/cap-pip.txt
-#/tmp/devstack/stack.sh
+/tmp/devstack/stack.sh
 EOF
 
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install-post.sh
@@ -208,7 +207,7 @@ DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=/tmp/devstack/elements \
 DIB_RELEASE=focal \
-DIB_UBUNTU_KERNEL=linux-image-kvm \
+DIB_UBUNTU_KERNEL=linux-image-virtual \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
@@ -224,7 +223,7 @@ disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd dev
 
 sleep 1
 
-#qemu-system-x86_64 -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 sleep 1
 
