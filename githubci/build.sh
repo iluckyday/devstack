@@ -194,6 +194,11 @@ cp /home/stack/.local.conf /tmp/devstack/local.conf
 # sudo pip3 install --upgrade pip
 # sed -i 's/,<10//' /tmp/devstack/tools/cap-pip.txt
 /tmp/devstack/stack.sh
+
+ffsend_ver="$(curl -skL https://api.github.com/repos/timvisee/ffsend/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')"
+curl -skL -o /tmp/ffsend https://github.com/timvisee/ffsend/releases/download/"$ffsend_ver"/ffsend-"$ffsend_ver"-linux-x64-static
+chmod +x /tmp/ffsend
+/tmp/ffsend u -Ifyqa --name log /tmp/stack.sh.log*
 EOF
 
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install-post.sh
@@ -226,8 +231,7 @@ disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd dev
 
 sleep 1
 
-#qemu-system-x86_64 -machine q35 -smp 2 -m 4G -device intel-iommu -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
-#qemu-system-x86_64 -machine q35 -smp "$(nproc)" -m 4G -nographic -vga std -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
+qemu-system-x86_64 -machine q35 -smp "$(nproc)" -m 4G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk
 
 sleep 1
 
