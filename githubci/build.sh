@@ -183,6 +183,7 @@ SYSLOG=True
 #   ENABLE_DEBUG_LOG_LEVEL=False
 ENABLE_DEBUG_LOG_LEVEL=True
 DEBUG_LIBVIRT=False
+SERVICE_TIMEOUT=0
 EOF
 
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install.sh
@@ -203,10 +204,8 @@ rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/sh
 EOF
 
 sed -i -e 's/4096/16384/' -e 's/size=64/size=0 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
-cat `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
-#DIB_QUIET=1 \
-DIB_DEBUG_TRACE=1 \
+DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
