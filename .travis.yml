@@ -7,8 +7,8 @@ before_install:
   - sudo pip3 install diskimage-builder
 
 script:
-  - sudo /bin/bash travisci/build-debian.sh
+  - sudo /bin/bash travisci/build.sh
 
 after_success:
   - ls -lh /tmp/devstack.cmp.img
-  - /bin/bash ffsend.sh /tmp/devstack.cmp.img
+  - /bin/bash ffsend.sh

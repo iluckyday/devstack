@@ -9,7 +9,7 @@ mkdir -p /tmp/devstack/files /tmp/devstack/files/home/stack /tmp/devstack/files/
 cat << "EOF" > /tmp/devstack/elements/devstack/extra-data.d/99-zz-devstack
 #!/bin/bash
 sudo rm -f $TMP_HOOKS_PATH/install.d/10-cloud-init $TMP_HOOKS_PATH/install.d/10-debian-networking $TMP_HOOKS_PATH/install.d/00-baseline-environment
-sudo sed -i 's/vga=normal/quiet intel_iommu=on/' $TMP_HOOKS_PATH/cleanup.d/51-bootloader
+sudo sed -i 's/vga=normal/quiet ipv6.disable=1 intel_iommu=on/' $TMP_HOOKS_PATH/cleanup.d/51-bootloader
 EOF
 
 cat << "EOF" > /tmp/devstack/elements/devstack/cleanup.d/99-zz-devstack

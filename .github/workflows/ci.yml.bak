@@ -24,8 +24,7 @@ jobs:
         run: ls -lh /tmp/devstack.cmp.img
 
       - name: Push to Firefox Send
-        run: /bin/bash ffsend.sh /tmp/devstack.cmp.img
+        run: /bin/bash ffsend.sh
         env:
-          FFSEND_BASIC_AUTH: ${{ secrets.FFSEND_BASIC_AUTH }}
           WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
