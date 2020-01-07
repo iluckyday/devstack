@@ -184,7 +184,14 @@ DEBUG_LIBVIRT=False
 EOF
 
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install.sh
-#!/bin/bash -ex
+#!/bin/bash
+set -ex
+
+ip address
+lsmod
+systemctl status systemd-sysctl.service
+exit 0
+
 
 git clone https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.local.conf /tmp/devstack/local.conf
