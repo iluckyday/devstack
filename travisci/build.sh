@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+UBUNTU_RELEASE=eoan
+
 sed -i '/src/d' /etc/apt/sources.list
 rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst
 
@@ -32,9 +34,6 @@ sudo chroot $TARGET_ROOT systemctl set-default last.target
 sudo chroot $TARGET_ROOT systemctl enable systemd-networkd devstack-install.service
 sudo chroot $TARGET_ROOT systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer
 
-###sudo chroot $TARGET_ROOT apt remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb
-
-sleep 1
 sudo rm -rf $TARGET_ROOT/etc/dib-manifests $TARGET_ROOT/var/log/* $TARGET_ROOT/usr/share/doc/* $TARGET_ROOT/usr/share/man/* $TARGET_ROOT/tmp/* $TARGET_ROOT/var/tmp/* $TARGET_ROOT/var/cache/apt/*
 sudo find $TARGET_ROOT/usr/lib/python* $TARGET_ROOT/usr/local/lib/python* $TARGET_ROOT/usr/share/python* -type f -name "*.py[co]" -o -type d -name __pycache__ -exec rm -rf {} +
 sudo find $TARGET_ROOT/usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -exec rm -rf {} +
@@ -202,14 +201,16 @@ rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/sh
 EOF
 
 sed -i -e 's/4096/16384/' -e 's/size=64/size=0 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
+cat `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
+
+exit
 
 DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=/tmp/devstack/elements \
-#DIB_RELEASE=focal \
-DIB_RELEASE=eoan \
+DIB_RELEASE=$UBUNTU_RELEASE \
 DIB_UBUNTU_KERNEL=linux-image-kvm \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
