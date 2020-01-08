@@ -211,7 +211,7 @@ sed -i 's/4096/16384/' `python3 -c "import os,diskimage_builder; print(os.path.d
 DIB_DEBUG_TRACE=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
-MKFS_OPTS="-O ^has_journal" \
+MKFS_OPTS="-O '^has_journal'" \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=$WORKDIR/elements \
 DIB_RELEASE=$UBUNTU_RELEASE \
