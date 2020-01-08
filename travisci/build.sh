@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+DEVSTACK_BRANCH=stable/train
 UBUNTU_RELEASE=bionic
 WORKDIR=/tmp/devstack
 
@@ -190,9 +191,7 @@ EOF
 cat << EOF > $WORKDIR/files/home/stack/.devstack-install.sh
 #!/bin/bash
 
-dpkg -l
-
-git clone https://opendev.org/openstack/devstack /tmp/devstack
+git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.local.conf /tmp/devstack/local.conf
 /tmp/devstack/stack.sh
 EOF
@@ -200,15 +199,13 @@ EOF
 cat << EOF > $WORKDIR/files/home/stack/.devstack-install-post.sh
 #!/bin/bash
 
+apt remove --purge -y git
 find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
 EOF
 
 sed -i 's/4096/16384 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
-
-
-cat $WORKDIR/elements/devstack/extra-data.d/99-zz-devstack
 
 DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
@@ -219,7 +216,7 @@ DIB_RELEASE=$UBUNTU_RELEASE \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
-DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git,python3-distutils" \
+DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,tzdata,git" \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --exclude=unattended-upgrades" \
 DIB_DISTRIBUTION_MIRROR_UBUNTU_INSECURE=1 \
 DIB_DEV_USER_USERNAME=stack \
