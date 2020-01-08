@@ -208,13 +208,11 @@ EOF
 sed -i 's/4096/16384 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
 DIB_QUIET=1 \
-#DIB_DEBUG_TRACE=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=$WORKDIR/elements \
 DIB_RELEASE=$UBUNTU_RELEASE \
-DIB_UBUNTU_KERNEL=linux-image-kvm \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
