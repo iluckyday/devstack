@@ -2,7 +2,7 @@
 set -e
 
 UBUNTU_RELEASE=eoan
-WORKDIR=$WORKDIR
+WORKDIR=/tmp/devstack
 
 sed -i '/src/d' /etc/apt/sources.list
 rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst
