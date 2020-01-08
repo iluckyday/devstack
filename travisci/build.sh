@@ -13,6 +13,8 @@ cat << "EOF" > $WORKDIR/elements/devstack/extra-data.d/99-zz-devstack
 #!/bin/bash
 sudo rm -f $TMP_HOOKS_PATH/*/*-cloud-init $TMP_HOOKS_PATH/*/*-debian-networking $TMP_HOOKS_PATH/*/*-baseline-environment
 sudo sed -i 's/vga=normal/quiet ipv6.disable=1 intel_iommu=on/' $TMP_HOOKS_PATH/*/*-bootloader
+
+ls -lR $TMP_HOOKS_PATH
 EOF
 chmod +x $WORKDIR/elements/devstack/extra-data.d/99-zz-devstack
 
@@ -226,7 +228,7 @@ DIB_DEV_USER_AUTHORIZED_KEYS=$WORKDIR/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o $WORKDIR vm block-device-mbr cleanup-kernel-initrd devuser ubuntu-minimal
 
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+#qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 #qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 while pgrep -f "devstack-building" >/dev/null
