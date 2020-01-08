@@ -32,14 +32,13 @@ sudo chroot $TARGET_ROOT systemctl set-default last.target
 sudo chroot $TARGET_ROOT systemctl enable systemd-networkd devstack-install.service
 sudo chroot $TARGET_ROOT systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer
 
-sudo chroot $TARGET_ROOT apt remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb
+###sudo chroot $TARGET_ROOT apt remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb
 
-sleep 2
+sleep 1
 sudo rm -rf $TARGET_ROOT/etc/dib-manifests $TARGET_ROOT/var/log/* $TARGET_ROOT/usr/share/doc/* $TARGET_ROOT/usr/share/man/* $TARGET_ROOT/tmp/* $TARGET_ROOT/var/tmp/* $TARGET_ROOT/var/cache/apt/*
 sudo find $TARGET_ROOT/usr/lib/python* $TARGET_ROOT/usr/local/lib/python* $TARGET_ROOT/usr/share/python* -type f -name "*.py[co]" -o -type d -name __pycache__ -exec rm -rf {} \; -prune
 sudo find $TARGET_ROOT/usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -exec rm -rf {} \; -prune
 sudo find $TARGET_ROOT/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} \; -prune
-sleep 2
 EOF
 
 chmod +x /tmp/devstack/elements/devstack/extra-data.d/99-zz-devstack /tmp/devstack/elements/devstack/cleanup.d/99-zz-devstack
@@ -187,6 +186,8 @@ EOF
 cat << EOF > /tmp/devstack/files/home/stack/.devstack-install.sh
 #!/bin/bash
 
+dpkg -l
+
 git clone https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.local.conf /tmp/devstack/local.conf
 /tmp/devstack/stack.sh
@@ -207,12 +208,12 @@ DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=/tmp/devstack/elements \
-DIB_RELEASE=eoan \
+DIB_RELEASE=focal \
 DIB_UBUNTU_KERNEL=linux-image-virtual \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
-DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git" \
+DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git,python3-distutils" \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --exclude=unattended-upgrades" \
 DIB_DISTRIBUTION_MIRROR_UBUNTU_INSECURE=1 \
 DIB_DEV_USER_USERNAME=stack \
