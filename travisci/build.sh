@@ -200,14 +200,12 @@ find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
 EOF
 
-sed -i -e 's/4096/16384/' -e 's/size=64/size=0 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
-cat `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
+sed -i -e 's/4096/16384/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
-exit
-
-DIB_QUIET=1 \
+#DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
+MKFS_OPTS="-O ^has_journal" \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=/tmp/devstack/elements \
 DIB_RELEASE=$UBUNTU_RELEASE \
@@ -224,6 +222,7 @@ DIB_DEV_USER_SHELL=/bin/bash \
 DIB_DEV_USER_AUTHORIZED_KEYS=/tmp/devstack/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd devuser ubuntu-minimal
+exit
 
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 #qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
