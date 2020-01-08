@@ -11,7 +11,8 @@ split -d -b 800M /tmp/devstack.cmp.img devstack.cmp.img.
 for file in /tmp/devstack.cmp.img.*;
 do
   FFSEND_URL=$(/tmp/ffsend -Ifyq upload $file)
-  data+="----"${FFSEND_URL/\#/%23}
+  data+=${FFSEND_URL/\#/%23}
 done
 
-curl -skL "http://wxpusher.zjiecode.com/api/send/message/?appToken=$WXPUSHER_APPTOKEN&uid=$WXPUSHER_UID&content=$data" >/dev/null &2>1
+echo $data
+#curl -skL "http://wxpusher.zjiecode.com/api/send/message/?appToken=$WXPUSHER_APPTOKEN&uid=$WXPUSHER_UID&content=$data" >/dev/null &2>1
