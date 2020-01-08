@@ -207,7 +207,7 @@ EOF
 
 sed -i -e 's/4096/16384/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
 
-DIB_QUIET=1 \
+#DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 MKFS_OPTS="-O ^has_journal" \
