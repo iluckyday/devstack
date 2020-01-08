@@ -216,7 +216,7 @@ DIB_RELEASE=$UBUNTU_RELEASE \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
-DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git,python3-distutils" \
+DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git" \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --exclude=unattended-upgrades" \
 DIB_DISTRIBUTION_MIRROR_UBUNTU_INSECURE=1 \
 DIB_DEV_USER_USERNAME=stack \
