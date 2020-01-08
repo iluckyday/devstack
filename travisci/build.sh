@@ -91,7 +91,6 @@ cat << EOF > $WORKDIR/files/etc/pip.conf
 [global]
 download-cache = /tmp
 cache-dir = /tmp
-no-cache-dir = true
 EOF
 
 cat << EOF > $WORKDIR/files/etc/systemd/journald.conf.d/storage.conf
