@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
 
-DEVSTACK_BRANCH=stable/train
-UBUNTU_RELEASE=eoan
+#DEVSTACK_BRANCH=stable/train
+DEVSTACK_BRANCH=master
+UBUNTU_RELEASE=bionic
 WORKDIR=/tmp/devstack
 
 sed -i '/src/d' /etc/apt/sources.list
@@ -133,7 +134,7 @@ SuccessAction=poweroff
 [Service]
 Type=oneshot
 User=stack
-StandardOutput=journal+console
+#StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -180,8 +181,7 @@ LIBVIRT_TYPE=kvm
 DOWNLOAD_DEFAULT_IMAGES=False
 RECLONE=yes
 FORCE=yes
-#VERBOSE=False
-VERBOSE=True
+VERBOSE=False
 SYSLOG=True
 ENABLE_DEBUG_LOG_LEVEL=False
 DEBUG_LIBVIRT=False
@@ -215,7 +215,7 @@ DIB_RELEASE=$UBUNTU_RELEASE \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
-DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git,python3-distutils" \
+DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git" \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --exclude=unattended-upgrades" \
 DIB_DISTRIBUTION_MIRROR_UBUNTU_INSECURE=1 \
 DIB_DEV_USER_USERNAME=stack \
@@ -225,8 +225,8 @@ DIB_DEV_USER_AUTHORIZED_KEYS=$WORKDIR/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o $WORKDIR vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
 
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
-#qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+#qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 exit 1
 while pgrep -f "devstack-building" >/dev/null
 do
