@@ -210,7 +210,7 @@ DIB_EXTLINUX=1 \
 ELEMENTS_PATH=/tmp/devstack/elements \
 #DIB_RELEASE=focal \
 DIB_RELEASE=eoan \
-DIB_UBUNTU_KERNEL=linux-image-virtual \
+DIB_UBUNTU_KERNEL=linux-image-kvm \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
@@ -222,7 +222,7 @@ DIB_DEV_USER_PASSWORD=stack \
 DIB_DEV_USER_SHELL=/bin/bash \
 DIB_DEV_USER_AUTHORIZED_KEYS=/tmp/devstack/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
-disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
+disk-image-create -o /tmp/devstack vm block-device-mbr cleanup-kernel-initrd devuser ubuntu-minimal
 
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 #qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
