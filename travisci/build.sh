@@ -230,11 +230,11 @@ qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cp
 
 while pgrep -f "devstack-building" >/dev/null
 do
-    echo Building...
+    echo Building ...
     sleep 60
 done
 
-echo converting...
+echo Converting ...
 
 qemu-img convert -f qcow2 -c -O qcow2 $WORKDIR.qcow2 $WORKDIR.cmp.img
 
