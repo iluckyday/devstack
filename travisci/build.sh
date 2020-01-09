@@ -198,7 +198,7 @@ EOF
 cat << EOF > $WORKDIR/files/home/stack/.devstack-install-post.sh
 #!/bin/bash
 
-apt remove --purge -y git
+apt-get remove --purge -y git
 find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
