@@ -60,13 +60,14 @@ EOF
 cat << EOF > $WORKDIR/files/etc/profile.d/python.sh
 #!/bin/sh
 
-export PYTHONDONTWRITEBYTECODE=1
+export PYTHONDONTWRITEBYTECODE=1 PYTHONHISTFILE=/dev/null
 EOF
 
 cat << EOF > $WORKDIR/files/etc/systemd/system-environment-generators/20-python
 #!/bin/sh
 
 echo 'PYTHONDONTWRITEBYTECODE=1'
+echo 'PYTHONHISTFILE=/dev/null'
 EOF
 chmod +x $WORKDIR/files/etc/systemd/system-environment-generators/20-python
 
@@ -201,7 +202,8 @@ cat << EOF > $WORKDIR/files/home/stack/.devstack-install-post.sh
 #!/bin/bash
 
 apt-get remove --purge -y git
-find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
+sed -i 's/stack/stack env_keep += "PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"/' /etc/sudoers.d/*rootwrap*
+find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* /opt/stack -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
 EOF
