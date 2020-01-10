@@ -57,7 +57,9 @@ LABEL=cloudimg-rootfs /    ext4  defaults,noatime                            0 0
 tmpfs                 /tmp tmpfs mode=1777,strictatime,nosuid,nodev,size=90% 0 0
 EOF
 
-cat << EOF > /etc/profile.d/python.sh
+cat << EOF > $WORKDIR/etc/profile.d/python.sh
+#!/bin/sh
+
 export PYTHONDONTWRITEBYTECODE=1
 EOF
 
