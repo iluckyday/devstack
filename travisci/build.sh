@@ -239,12 +239,13 @@ do
     sleep 300
 done
 
-echo Converting ...
+echo "Original image size:"
+ls -lh /tmp/devstack.qcow2
 
-qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /dev/shm/devstack.cmp.img
-ls -l /tmp/devstack.qcow2
-ls -l /dev/shm/devstack.cmp.img
-df -h
-free -h
+echo Converting ...
+qemu-img conveRt -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /dev/shm/devstack.cmp.img
+
+echo "Compressed image size:"
+ls -lh /dev/shm/devstack.cmp.img
 
 exit 0
