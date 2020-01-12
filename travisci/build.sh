@@ -165,7 +165,7 @@ export OS_USER_DOMAIN_ID=default
 export OS_PROJECT_DOMAIN_ID=default
 EOF
 
-cat << EOF > $WORKDIR/files/home/stack/.local.conf
+cat << EOF > $WORKDIR/files/home/stack/.devstack-local.conf
 [[local|localrc]]
 disable_service tempest dstat
 disable_service c-sch c-api c-vol
@@ -194,7 +194,7 @@ cat << EOF > $WORKDIR/files/home/stack/.devstack-install.sh
 #!/bin/bash
 
 git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
-cp /home/stack/.local.conf /tmp/devstack/local.conf
+cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 /tmp/devstack/stack.sh
 EOF
 
@@ -206,6 +206,7 @@ sed -i 's/^stack/stack env_keep += "PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"/' /e
 find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* /opt/stack -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
+rm -rf /home/stack/.devstack*
 EOF
 
 sed -i 's/4096/16384 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
@@ -235,11 +236,15 @@ qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cp
 while pgrep -f "devstack-building" >/dev/null
 do
     echo Building ...
-    sleep 60
+    sleep 300
 done
 
 echo Converting ...
 
 qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /dev/shm/devstack.cmp.img
+ls -l /tmp/devstack.qcow2
+ls -l /dev/shm/devstack.cmp.img
+df -h
+free -h
 
 exit 0
