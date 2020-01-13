@@ -180,6 +180,7 @@ PIP_UPGRADE=True
 USE_PYTHON3=True
 ENABLE_IDENTITY_V2=False
 IP_VERSION=4
+GIT_DEPTH=1
 SERVICE_IP_VERSION=4
 HOST_IP=10.0.2.15
 LIBVIRT_TYPE=kvm
@@ -204,11 +205,11 @@ cat << EOF > $WORKDIR/files/home/stack/.devstack-install-post.sh
 #!/bin/bash
 
 systemctl set-default multi-user.target
-apt-get remove --purge -y git git-man cpp g++ g++-7 gcc qemu-slof qemu-system-arm qemu-system-mips qemu-system-misc qemu-system-ppc qemu-system-s390x qemu-system-sparc
+apt-get remove --purge -y git git-man cpp g++ g++-7 gcc gcc-7 qemu-slof qemu-system-arm qemu-system-mips qemu-system-misc qemu-system-ppc qemu-system-s390x qemu-system-sparc
 find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* /opt/stack -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
-rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
-rm -rf /home/stack/.devstack* /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
+rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/local/share/doc/* /usr/share/man/*
+rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
 sed -i 's/4096/16384 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
@@ -250,4 +251,4 @@ qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /dev/shm/devstack.cmp.
 echo "Compressed image size:"
 ls -lh /dev/shm/devstack.cmp.img
 
-exit 0
+exit 1
