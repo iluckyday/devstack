@@ -9,7 +9,7 @@ WORKDIR=/tmp/devstack
 sed -i '/src/d' /etc/apt/sources.list
 rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst
 
-mkdir -p $WORKDIR/files $WORKDIR/files/home/stack $WORKDIR/files/etc/{systemd/system-environment-generators,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d} $WORKDIR/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/extra-data.d $WORKDIR/elements/devstack/cleanup.d
+mkdir -p $WORKDIR/files $WORKDIR/files/home/stack $WORKDIR/files/etc/{systemd/system-environment-generators,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $WORKDIR/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/{extra-data.d,cleanup.d}
 
 cat << "EOF" > $WORKDIR/elements/devstack/extra-data.d/99-zz-devstack
 #!/bin/bash
@@ -56,6 +56,8 @@ cat << EOF > $WORKDIR/files/etc/fstab
 LABEL=cloudimg-rootfs /    ext4  defaults,noatime                            0 0
 tmpfs                 /tmp tmpfs mode=1777,strictatime,nosuid,nodev,size=90% 0 0
 EOF
+
+( umask 226 && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"' > $WORKDIR/files/etc/sudoers.d/env_keep )
 
 cat << EOF > $WORKDIR/files/etc/profile.d/python.sh
 #!/bin/sh
@@ -181,7 +183,7 @@ IP_VERSION=4
 SERVICE_IP_VERSION=4
 HOST_IP=10.0.2.15
 LIBVIRT_TYPE=kvm
-DOWNLOAD_DEFAULT_IMAGES=False
+DOWNLOAD_DEFAULT_IMAGES=True
 RECLONE=yes
 FORCE=yes
 VERBOSE=False
@@ -201,12 +203,12 @@ EOF
 cat << EOF > $WORKDIR/files/home/stack/.devstack-install-post.sh
 #!/bin/bash
 
-apt-get remove --purge -y git
-( umask 226 && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"' > /etc/sudoers.d/env_keep )
+systemctl set-default multi-user.target
+apt-get remove --purge -y git git-man cpp g++ g++-7 gcc qemu-slof qemu-system-arm qemu-system-mips qemu-system-misc qemu-system-ppc qemu-system-s390x qemu-system-sparc
 find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* /opt/stack -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
-rm -rf /home/stack/.devstack* /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh
+rm -rf /home/stack/.devstack* /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
 EOF
 
 sed -i 's/4096/16384 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
