@@ -202,11 +202,11 @@ cat << EOF > $WORKDIR/files/home/stack/.devstack-install-post.sh
 #!/bin/bash
 
 apt-get remove --purge -y git
-rm -rf /home/stack/.devstack* /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh
-sed -i 's/^stack.*/& env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"/' /etc/sudoers.d/*
+( umask 226 && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"' > /etc/sudoers.d/env_keep )
 find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* /opt/stack -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/share/man/*
+rm -rf /home/stack/.devstack* /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh
 EOF
 
 sed -i 's/4096/16384 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
