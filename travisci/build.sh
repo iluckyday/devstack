@@ -251,4 +251,4 @@ qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /dev/shm/devstack.cmp.
 echo "Compressed image size:"
 ls -lh /dev/shm/devstack.cmp.img
 
-exit 1
+exit 0
