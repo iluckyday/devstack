@@ -32,7 +32,7 @@ groupadd kvm
 usermod -a -G kvm ${DIB_DEV_USER_USERNAME}
 
 systemctl set-default last.target
-systemctl enable systemd-networkd devstack-install.service
+systemctl enable systemd-networkd devstack-install
 systemctl disable e2scrub_reap.service
 systemctl mask apt-daily.timer e2scrub_reap.service apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer motd-news.timer
 
@@ -226,6 +226,9 @@ DIB_DEV_USER_SHELL=/bin/bash \
 DIB_DEV_USER_AUTHORIZED_KEYS=$WORKDIR/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o /tmp/devstack.qcow2 vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
+
+cp /tmp/devstack.qcow2 /dev/shm/devstack.cmp.img
+exit
 
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
