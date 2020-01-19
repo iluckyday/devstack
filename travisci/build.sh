@@ -38,7 +38,6 @@ systemctl disable e2scrub_reap.service
 systemctl mask apt-daily.timer e2scrub_reap.service apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer motd-news.timer
 
 sed -i '/src/d' /etc/apt/sources.list
-#apt remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb
 "
 EOF
 chmod +x  $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
@@ -134,7 +133,6 @@ SuccessAction=poweroff
 [Service]
 Type=oneshot
 User=stack
-StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -206,12 +204,11 @@ sed -i 's/-i 4096/-i 16384 -O ^has_journal/' "$PY_DIB_PATH"/lib/disk-image-creat
 sed -i 's/linux-image-amd64/linux-image-cloud-amd64/' "$PY_DIB_PATH"/elements/debian-minimal/package-installs.yaml
 sed -i 's/vga=normal/quiet ipv6.disable=1/' "$PY_DIB_PATH"/elements/bootloader/cleanup.d/51-bootloader
 sed -i -e '/gnupg/d' "$PY_DIB_PATH"/elements/debian-minimal/root.d/75-debian-minimal-baseinstall
-sed -i '/lsb-release/,/^/d' "$PY_DIB_PATH"/elements/debootstrap/package-installs.yaml
 for i in cloud-init debian-networking baseline-environment baseline-tools write-dpkg-manifest copy-manifests-dir ; do
     rm -rf "$PY_DIB_PATH"/elements/*/*/*$i
 done
 
-DIB_QUIET=0 \
+DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
@@ -232,14 +229,7 @@ DIB_DEV_USER_AUTHORIZED_KEYS=$WORKDIR/elements/devstack/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o /tmp/devstack.qcow2 vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
 
-cp /tmp/devstack.qcow2 /dev/shm/devstack.cmp.img
-exit
-
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
-
-exit 0
-
-#qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 while pgrep -f "devstack-building" >/dev/null
 do
