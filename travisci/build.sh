@@ -133,7 +133,6 @@ SuccessAction=poweroff
 [Service]
 Type=oneshot
 User=stack
-StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -238,4 +237,11 @@ do
     sleep 300
 done
 
+echo "Original image size:"
+ls -lh /tmp/devstack.qcow2
+
+echo Converting ...
+qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /dev/shm/devstack.cmp.img
+
+echo "Compressed image size:"
 ls -lh /dev/shm/devstack.cmp.img
