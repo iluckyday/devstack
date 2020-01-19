@@ -129,7 +129,7 @@ SuccessAction=poweroff
 [Service]
 Type=oneshot
 User=stack
-#StandardOutput=journal+console
+StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
