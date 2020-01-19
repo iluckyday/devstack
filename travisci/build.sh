@@ -6,7 +6,7 @@ DEVSTACK_BRANCH=master
 UBUNTU_RELEASE=bionic
 WORKDIR=/tmp/devstack
 
-mkdir -p $WORKDIR/files $WORKDIR/files/home/stack $WORKDIR/files/etc/{systemd/system-environment-generators,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $WORKDIR/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/cleanup.d
+mkdir -p $WORKDIR/elements/devstack/files/home/stack $WORKDIR/elements/devstack/files/etc/{systemd/system-environment-generators,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $WORKDIR/elements/devstack/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/cleanup.d
 
 cat << "EOF" > $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
 #!/bin/bash
@@ -23,6 +23,7 @@ echo -e 'export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null\n\nsourc
 "
 
 chroot $TARGET_ROOT /bin/bash -c "
+chown -R ${DIB_DEV_USER_USERNAME}:${DIB_DEV_USER_USERNAME} /home/${DIB_DEV_USER_USERNAME}
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > /etc/resolv.conf.ORIG
 echo devstack > /etc/hostname
@@ -42,28 +43,32 @@ sed -i '/src/d' /etc/apt/sources.list
 EOF
 chmod +x  $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
 
-cat << EOF > $WORKDIR/files/etc/fstab
+cat << EOF > $WORKDIR/elements/devstack/files/etc/fstab
 LABEL=cloudimg-rootfs /    ext4  defaults,noatime                            0 0
 tmpfs                 /tmp tmpfs mode=1777,strictatime,nosuid,nodev,size=90% 0 0
 EOF
 
-( umask 226 && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"' > $WORKDIR/files/etc/sudoers.d/env_keep )
+( umask 226 && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"' > $WORKDIR/elements/devstack/files/etc/sudoers.d/env_keep )
 
-cat << EOF > $WORKDIR/files/etc/profile.d/python.sh
+cat << EOF > $WORKDIR/elements/devstack/files/etc/profile.d/python.sh
 #!/bin/sh
 
 export PYTHONDONTWRITEBYTECODE=1 PYTHONHISTFILE=/dev/null
 EOF
 
-cat << EOF > $WORKDIR/files/etc/systemd/system-environment-generators/20-python
+cat << EOF > $WORKDIR/elements/devstack/files/authorized_keys
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp
+EOF
+
+cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/system-environment-generators/20-python
 #!/bin/sh
 
 echo 'PYTHONDONTWRITEBYTECODE=1'
 echo 'PYTHONHISTFILE=/dev/null'
 EOF
-chmod +x $WORKDIR/files/etc/systemd/system-environment-generators/20-python
+chmod +x $WORKDIR/elements/devstack/files/etc/systemd/system-environment-generators/20-python
 
-cat << EOF > $WORKDIR/files/etc/apt/apt.conf.d/99-freedisk
+cat << EOF > $WORKDIR/elements/devstack/files/etc/apt/apt.conf.d/99-freedisk
 APT::Authentication "0";
 APT::Get::AllowUnauthenticated "1";
 Dir::Cache "/dev/shm";
@@ -72,7 +77,7 @@ Dir::Log "/dev/shm";
 DPkg::Post-Invoke {"/bin/rm -f /dev/shm/archives/*.deb || true";};
 EOF
 
-cat << EOF > $WORKDIR/files/etc/dpkg/dpkg.cfg.d/99-nodoc
+cat << EOF > $WORKDIR/elements/devstack/files/etc/dpkg/dpkg.cfg.d/99-nodoc
 path-exclude /usr/share/doc/*
 path-exclude /usr/share/man/*
 path-exclude /usr/share/groff/*
@@ -83,18 +88,18 @@ path-exclude /usr/share/locale/*
 path-include /usr/share/locale/en*
 EOF
 
-cat << EOF > $WORKDIR/files/etc/pip.conf
+cat << EOF > $WORKDIR/elements/devstack/files/etc/pip.conf
 [global]
 download-cache = /tmp
 cache-dir = /tmp
 EOF
 
-cat << EOF > $WORKDIR/files/etc/systemd/journald.conf.d/storage.conf
+cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/journald.conf.d/storage.conf
 [Journal]
 Storage=volatile
 EOF
 
-cat << EOF > $WORKDIR/files/etc/systemd/network/20-dhcp.network
+cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/network/20-dhcp.network
 [Match]
 Name=en*
 
@@ -102,7 +107,7 @@ Name=en*
 DHCP=ipv4
 EOF
 
-cat << EOF > $WORKDIR/files/etc/systemd/network/30-br-ex.network
+cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/network/30-br-ex.network
 [Match]
 Name=br-ex
 
@@ -110,7 +115,7 @@ Name=br-ex
 Address=172.24.4.1/24
 EOF
 
-cat << EOF > $WORKDIR/files/etc/systemd/system/last.target
+cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/system/last.target
 [Unit]
 Description=Last Target for Last Commands
 Requires=multi-user.target
@@ -118,7 +123,7 @@ After=multi-user.target
 Conflicts=rescue.service rescue.target
 EOF
 
-cat << EOF > $WORKDIR/files/etc/systemd/system/devstack-install.service
+cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/system/devstack-install.service
 [Unit]
 Description=DevStack Install Service
 Wants=network-online.target
@@ -137,7 +142,7 @@ ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 WantedBy=last.target
 EOF
 
-cat << EOF > $WORKDIR/files/home/stack/.adminrc
+cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.adminrc
 export OS_USERNAME=admin
 export OS_PASSWORD=devstack
 export OS_AUTH_URL=http://10.0.2.15/identity
@@ -151,7 +156,7 @@ export OS_USER_DOMAIN_ID=default
 export OS_PROJECT_DOMAIN_ID=default
 EOF
 
-cat << EOF > $WORKDIR/files/home/stack/.devstack-local.conf
+cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-local.conf
 [[local|localrc]]
 disable_service tempest dstat
 disable_service c-sch c-api c-vol
@@ -177,7 +182,7 @@ ENABLE_DEBUG_LOG_LEVEL=False
 DEBUG_LIBVIRT=False
 EOF
 
-cat << EOF > $WORKDIR/files/home/stack/.devstack-install.sh
+cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-install.sh
 #!/bin/bash
 
 git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
@@ -185,7 +190,7 @@ cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 /tmp/devstack/stack.sh
 EOF
 
-cat << EOF > $WORKDIR/files/home/stack/.devstack-install-post.sh
+cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-install-post.sh
 #!/bin/bash
 
 systemctl set-default multi-user.target
@@ -223,7 +228,7 @@ DIB_DISTRIBUTION_MIRROR_UBUNTU_INSECURE=1 \
 DIB_DEV_USER_USERNAME=stack \
 DIB_DEV_USER_PASSWORD=stack \
 DIB_DEV_USER_SHELL=/bin/bash \
-DIB_DEV_USER_AUTHORIZED_KEYS=$WORKDIR/files/authorized_keys \
+DIB_DEV_USER_AUTHORIZED_KEYS=$WORKDIR/elements/devstack/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o /tmp/devstack.qcow2 vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
 
