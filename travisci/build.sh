@@ -40,6 +40,7 @@ sed -i '/src/d' /etc/apt/sources.list
 apt remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb
 "
 EOF
+chmod +x  $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
 
 cat << EOF > $WORKDIR/files/etc/fstab
 LABEL=cloudimg-rootfs /    ext4  defaults,noatime                            0 0
