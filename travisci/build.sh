@@ -6,50 +6,39 @@ DEVSTACK_BRANCH=master
 UBUNTU_RELEASE=bionic
 WORKDIR=/tmp/devstack
 
-sed -i '/src/d' /etc/apt/sources.list
-rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst
-
-mkdir -p $WORKDIR/files $WORKDIR/files/home/stack $WORKDIR/files/etc/{systemd/system-environment-generators,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $WORKDIR/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/{extra-data.d,cleanup.d}
-
-cat << "EOF" > $WORKDIR/elements/devstack/extra-data.d/99-zz-devstack
-#!/bin/bash
-sudo rm -f $TMP_HOOKS_PATH/*/*-cloud-init $TMP_HOOKS_PATH/*/*-debian-networking $TMP_HOOKS_PATH/*/*-baseline-environment
-sudo sed -i 's/vga=normal/quiet ipv6.disable=1 intel_iommu=on/' $TMP_HOOKS_PATH/*/*-bootloader
-EOF
-chmod +x $WORKDIR/elements/devstack/extra-data.d/99-zz-devstack
+mkdir -p $WORKDIR/files $WORKDIR/files/home/stack $WORKDIR/files/etc/{systemd/system-environment-generators,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $WORKDIR/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/cleanup.d
 
 cat << "EOF" > $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
 #!/bin/bash
-export TARGET_ROOT
-export basedir=$(dirname ${ELEMENTS_PATH%%:*})
-find ${basedir}/files -type f ! -name "authorized_keys" -exec bash -c 'dirname {} | sed -e "s@${basedir}/files@@" | xargs -I % bash -c "mkdir -p $TARGET_ROOT%; sudo cp {} $TARGET_ROOT%"' \;
+SCRIPTDIR=$(dirname $0)
+cp -R $SCRIPTDIR/../files/* $TARGET_ROOT
+for f in /etc/dib-manifests /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
+    rm -rf $TARGET_ROOT$f
+done
+find $TARGET_ROOT/usr/share/zoneinfo -prune -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} +
 
-sudo touch $TARGET_ROOT/home/${DIB_DEV_USER_USERNAME}/.hushlogin
-echo -e "source .bash.conf\nsource .adminrc"| sudo tee -a $TARGET_ROOT/home/${DIB_DEV_USER_USERNAME}/.bashrc
-echo devstack | sudo tee $TARGET_ROOT/etc/hostname
-echo -e "\n\nnet.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr" | sudo tee -a $TARGET_ROOT/etc/sysctl.conf
-sudo chroot $TARGET_ROOT ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-sed -i '/src/d' $TARGET_ROOT/etc/apt/sources.list
+chroot --userspec=${DIB_DEV_USER_USERNAME}:${DIB_DEV_USER_USERNAME} $TARGET_ROOT /bin/bash -c "
+touch /home/${DIB_DEV_USER_USERNAME}/.hushlogin
+echo -e 'export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null\n\nsource .adminrc' >> /home/${DIB_DEV_USER_USERNAME}/.bashrc
+"
 
-sudo chroot $TARGET_ROOT chown -R ${DIB_DEV_USER_USERNAME}:${DIB_DEV_USER_USERNAME} /home/${DIB_DEV_USER_USERNAME}
-sudo chroot $TARGET_ROOT groupadd kvm
-sudo chroot $TARGET_ROOT usermod -a -G kvm ${DIB_DEV_USER_USERNAME}
-sudo chroot $TARGET_ROOT systemctl set-default last.target
-sudo chroot $TARGET_ROOT systemctl enable systemd-networkd devstack-install.service
-sudo chroot $TARGET_ROOT systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer
+chroot $TARGET_ROOT /bin/bash -c "
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > /etc/resolv.conf.ORIG
+echo devstack > /etc/hostname
+echo -e '\n\nnet.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr' > /etc/sysctl.conf
 
-sudo chroot $TARGET_ROOT apt remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb
+groupadd kvm
+usermod -a -G kvm ${DIB_DEV_USER_USERNAME}
 
-sudo rm -rf $TARGET_ROOT/etc/dib-manifests $TARGET_ROOT/var/log/* $TARGET_ROOT/usr/share/doc/* $TARGET_ROOT/usr/share/man/* $TARGET_ROOT/tmp/* $TARGET_ROOT/var/tmp/* $TARGET_ROOT/var/cache/apt/*
-sudo find $TARGET_ROOT/usr/lib/python* $TARGET_ROOT/usr/local/lib/python* $TARGET_ROOT/usr/share/python* -type f -name "*.py[co]" -o -type d -name __pycache__ -exec rm -rf {} +
-sudo find $TARGET_ROOT/usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -exec rm -rf {} +
-sudo find $TARGET_ROOT/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} +
-EOF
+systemctl set-default last.target
+systemctl enable systemd-networkd devstack-install.service
+systemctl disable e2scrub_reap.service
+systemctl mask apt-daily.timer e2scrub_reap.service apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer motd-news.timer
 
-chmod +x $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
-
-cat << EOF > $WORKDIR/files/authorized_keys
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp
+sed -i '/src/d' /etc/apt/sources.list
+apt remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb
+"
 EOF
 
 cat << EOF > $WORKDIR/files/etc/fstab
@@ -147,12 +136,6 @@ ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 WantedBy=last.target
 EOF
 
-cat << EOF > $WORKDIR/files/home/stack/.bash.conf
-export HISTSIZE=1000
-export LESSHISTFILE=/dev/null
-unset HISTFILE
-EOF
-
 cat << EOF > $WORKDIR/files/home/stack/.adminrc
 export OS_USERNAME=admin
 export OS_PASSWORD=devstack
@@ -212,13 +195,23 @@ rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/lo
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
-sed -i 's/4096/16384 -O ^has_journal/' `python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))"`/lib/disk-image-create
+PY_DIB_PATH=$(python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))")
+sed -i 's/-i 4096/-i 16384 -O ^has_journal/' "$PY_DIB_PATH"/lib/disk-image-create
+sed -i 's/linux-image-amd64/linux-image-cloud-amd64/' "$PY_DIB_PATH"/elements/debian-minimal/package-installs.yaml
+sed -i 's/vga=normal/quiet ipv6.disable=1/' "$PY_DIB_PATH"/elements/bootloader/cleanup.d/51-bootloader
+sed -i -e '/gnupg/d' "$PY_DIB_PATH"/elements/debian-minimal/root.d/75-debian-minimal-baseinstall
+sed -i '/lsb-release/,/^/d' "$PY_DIB_PATH"/elements/debootstrap/package-installs.yaml
+for i in cloud-init debian-networking baseline-environment baseline-tools write-dpkg-manifest copy-manifests-dir ; do
+    rm -rf "$PY_DIB_PATH"/elements/*/*/*$i
+done
 
 DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=$WORKDIR/elements \
+DIB_IMAGE_CACHE=/dev/shm \
+DIB_PYTHON_VERSION=3 \
 DIB_RELEASE=$UBUNTU_RELEASE \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
@@ -233,7 +226,6 @@ DIB_DEV_USER_AUTHORIZED_KEYS=$WORKDIR/files/authorized_keys \
 DIB_DEV_USER_PWDLESS_SUDO=yes \
 disk-image-create -o /tmp/devstack.qcow2 vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
 
-#qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 while pgrep -f "devstack-building" >/dev/null
@@ -250,5 +242,3 @@ qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /dev/shm/devstack.cmp.
 
 echo "Compressed image size:"
 ls -lh /dev/shm/devstack.cmp.img
-
-exit 0
