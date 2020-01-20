@@ -30,13 +30,12 @@ usermod -a -G kvm ${DIB_DEV_USER_USERNAME}
 
 systemctl set-default last.target
 systemctl enable systemd-networkd devstack-install
-systemctl disable e2scrub_reap.service
-systemctl mask apt-daily.timer e2scrub_reap.service apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer motd-news.timer
+systemctl mask apt-daily.timer apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer motd-news.timer
 
 for f in /etc/dib-manifests /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
     rm -rf $TARGET_ROOT$f
 done
-find $TARGET_ROOT/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} +
+find $TARGET_ROOT/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} + || true
 "
 EOF
 chmod +x  $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
