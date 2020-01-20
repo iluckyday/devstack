@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 #DEVSTACK_BRANCH=stable/train
 DEVSTACK_BRANCH=master
@@ -205,7 +205,7 @@ for i in cloud-init debian-networking baseline-environment baseline-tools write-
     rm -rf "$PY_DIB_PATH"/elements/*/*/*$i
 done
 
-DIB_QUIET=0 \
+DIB_QUIET=1 \
 DIB_IMAGE_SIZE=200 \
 DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
