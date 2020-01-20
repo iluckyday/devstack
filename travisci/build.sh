@@ -12,10 +12,6 @@ cat << "EOF" > $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
 #!/bin/bash
 SCRIPTDIR=$(dirname $0)
 cp -R $SCRIPTDIR/../files/* $TARGET_ROOT
-for f in /etc/dib-manifests /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
-    rm -rf $TARGET_ROOT$f
-done
-find $TARGET_ROOT/usr/share/zoneinfo -prune -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} +
 
 chroot --userspec=${DIB_DEV_USER_USERNAME}:${DIB_DEV_USER_USERNAME} $TARGET_ROOT /bin/bash -c "
 touch /home/${DIB_DEV_USER_USERNAME}/.hushlogin
@@ -37,7 +33,10 @@ systemctl enable systemd-networkd devstack-install
 systemctl disable e2scrub_reap.service
 systemctl mask apt-daily.timer e2scrub_reap.service apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer motd-news.timer
 
-sed -i '/src/d' /etc/apt/sources.list
+for f in /etc/dib-manifests /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
+    rm -rf $TARGET_ROOT$f
+done
+find $TARGET_ROOT/usr/share/zoneinfo -prune -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} +
 "
 EOF
 chmod +x  $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
