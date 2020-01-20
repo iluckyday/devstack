@@ -36,7 +36,7 @@ systemctl mask apt-daily.timer e2scrub_reap.service apt-daily-upgrade.timer e2sc
 for f in /etc/dib-manifests /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
     rm -rf $TARGET_ROOT$f
 done
-find $TARGET_ROOT/usr/share/zoneinfo -prune -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} +
+find $TARGET_ROOT/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} +
 "
 EOF
 chmod +x  $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
