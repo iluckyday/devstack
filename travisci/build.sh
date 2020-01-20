@@ -190,7 +190,7 @@ cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-install-post.
 #!/bin/bash
 
 systemctl set-default multi-user.target
-apt-get remove --purge -y git git-man cpp g++ g++-7 gcc gcc-7 qemu-slof qemu-system-arm qemu-system-mips qemu-system-misc qemu-system-ppc qemu-system-s390x qemu-system-sparc
+apt-get remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb git git-man cpp g++ g++-7 gcc gcc-7 qemu-slof qemu-system-arm qemu-system-mips qemu-system-misc qemu-system-ppc qemu-system-s390x qemu-system-sparc
 find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* /opt/stack -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/local/share/doc/* /usr/share/man/*
@@ -199,7 +199,6 @@ EOF
 
 PY_DIB_PATH=$(python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))")
 sed -i 's/-i 4096/-i 16384 -O ^has_journal/' "$PY_DIB_PATH"/lib/disk-image-create
-sed -i 's/linux-image-amd64/linux-image-cloud-amd64/' "$PY_DIB_PATH"/elements/debian-minimal/package-installs.yaml
 sed -i 's/vga=normal/quiet ipv6.disable=1/' "$PY_DIB_PATH"/elements/bootloader/cleanup.d/51-bootloader
 sed -i -e '/gnupg/d' "$PY_DIB_PATH"/elements/debian-minimal/root.d/75-debian-minimal-baseinstall
 for i in cloud-init debian-networking baseline-environment baseline-tools write-dpkg-manifest copy-manifests-dir ; do
@@ -212,8 +211,8 @@ DIB_JOURNAL_SIZE=0 \
 DIB_EXTLINUX=1 \
 ELEMENTS_PATH=$WORKDIR/elements \
 DIB_IMAGE_CACHE=/dev/shm \
-DIB_PYTHON_VERSION=3 \
 DIB_RELEASE=$UBUNTU_RELEASE \
+DIB_UBUNTU_KERNEL=linux-image-kvm \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
