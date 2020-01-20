@@ -6,7 +6,7 @@ DEVSTACK_BRANCH=master
 UBUNTU_RELEASE=bionic
 WORKDIR=/tmp/devstack
 
-mkdir -p $WORKDIR/elements/devstack/files/home/stack $WORKDIR/elements/devstack/files/etc/{systemd/system-environment-generators,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $WORKDIR/elements/devstack/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/cleanup.d
+mkdir -p $WORKDIR/elements/devstack/files/home/stack $WORKDIR/elements/devstack/files/etc/{systemd/system-environment-generators,sysctl.d,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $WORKDIR/elements/devstack/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/cleanup.d
 
 cat << "EOF" > $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
 #!/bin/bash
