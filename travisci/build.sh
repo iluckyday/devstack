@@ -91,6 +91,11 @@ download-cache = /tmp
 cache-dir = /tmp
 EOF
 
+cat << EOF > $WORKDIR/elements/devstack/files/etc/sysctl.d/20-tcp-bbr.conf
+net.core.default_qdisc=fq
+net.ipv4.tcp_congestion_control=bbr
+EOF
+
 cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/journald.conf.d/storage.conf
 [Journal]
 Storage=volatile
@@ -156,7 +161,7 @@ cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-local.conf
 [[local|localrc]]
 disable_service tempest dstat
 disable_service c-sch c-api c-vol
-#disable_service horizon
+disable_service horizon
 ADMIN_PASSWORD=devstack
 DATABASE_PASSWORD=devstack
 SERVICE_PASSWORD=devstack
@@ -191,9 +196,9 @@ cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-install-post.
 
 systemctl set-default multi-user.target
 apt-get remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb git git-man cpp g++ g++-7 gcc gcc-7 qemu-slof qemu-system-arm qemu-system-mips qemu-system-misc qemu-system-ppc qemu-system-s390x qemu-system-sparc
-find /opt/stack /usr/lib/python* /usr/local/lib/python* /usr/share/python* /opt/stack -type f -name "*.py[co]" -delete -o -type d -name __pycache__ -delete 2>/dev/null
+find / ! -path /proc ! -path /sys -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
-rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/local/share/doc/* /usr/share/man/*
+rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/local/share/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/*
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
@@ -212,7 +217,6 @@ DIB_EXTLINUX=1 \
 ELEMENTS_PATH=$WORKDIR/elements \
 DIB_IMAGE_CACHE=/dev/shm \
 DIB_RELEASE=$UBUNTU_RELEASE \
-DIB_UBUNTU_KERNEL=linux-image-kvm \
 DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
 DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
 DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
