@@ -5,9 +5,9 @@ set -ex
 DEVSTACK_BRANCH=master
 DEBIAN_RELEASE=buster
 DEBIAN_RELEASE_NUM=10
+
 WORKDIR=/tmp/devstack
 MNTDIR=$WORKDIR/mnt
-
 mkdir -p $MNTDIR
 cd $WORKDIR
 
@@ -18,11 +18,10 @@ qemu-img resize -f raw disk.raw 203G
 loopx=$(losetup --show -f -P disk.raw)
 sgdisk -d 1 $loopx
 sgdisk -N 0 $loopx
-fdisk -l $loopx
 resize2fs -f ${loopx}p1
 tune2fs -O '^has_journal' ${loopx}p1
-sleep 1
 mount ${loopx}p1 $MNTDIR
+sleep 1
 
 chroot $MNTDIR useradd -s /bin/bash -m stack
 chroot --userspec=stack:stack $MNTDIR /bin/bash -c "
@@ -183,7 +182,6 @@ rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/lo
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
-
 ln -sf /usr/share/zoneinfo/Asia/Shanghai $MNTDIR/etc/localtime
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > $MNTDIR/etc/resolv.conf.ORIG
 echo devstack > $MNTDIR/etc/hostname
@@ -200,7 +198,7 @@ do
 done
 
 for f in /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
-    rm -rf $MNTDIR$f
+	rm -rf $MNTDIR$f
 done
 
 find $MNTDIR/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} + || true
@@ -221,8 +219,8 @@ qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cp
 
 while pgrep -f "devstack-building" >/dev/null
 do
-    echo Building ...
-    sleep 300
+	echo Building ...
+	sleep 300
 done
 
 echo "Original image size:"
@@ -233,3 +231,4 @@ qemu-img convert -f raw -c -O qcow2 $WORKDIR/disk.raw /dev/shm/devstack.cmp.img
 
 echo "Compressed image size:"
 ls -lh /dev/shm/devstack.cmp.img
+exit 1
