@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 #DEVSTACK_BRANCH=stable/train
 DEVSTACK_BRANCH=master
@@ -12,7 +12,7 @@ mkdir -p $MNTDIR
 cd $WORKDIR
 
 version=$(curl -skL https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily | awk '/href/ {s=$0} END {print s}' | awk -F'"' '{sub(/\//,"",$2);print $2}')
-curl -kL -# https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily/${version}/debian-$DEBIAN_RELEASE_NUM-nocloud-amd64-daily-${version}.tar.xz | tar -xJ
+curl -skL https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily/${version}/debian-$DEBIAN_RELEASE_NUM-nocloud-amd64-daily-${version}.tar.xz | tar -xJ
 
 qemu-img resize -f raw disk.raw 203G
 loopx=$(losetup --show -f -P disk.raw)
