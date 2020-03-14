@@ -11,7 +11,7 @@ MNTDIR=$WORKDIR/mnt
 mkdir -p $MNTDIR
 cd $WORKDIR
 
-version=$(curl -skL https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily | awk '/href/ {s=$0} END {print s}' | awk -F'"' '{sub(/\//,"",$2);print $2}')
+version=$(curl -skL https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily | awk '/href/ {s=$0} END {print s}' | awk -F'"' '{sub(/\//,"",$6);print $6}')
 curl -skL https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily/${version}/debian-$DEBIAN_RELEASE_NUM-nocloud-amd64-daily-${version}.tar.xz | tar -xJ
 
 qemu-img resize -f raw disk.raw 203G
