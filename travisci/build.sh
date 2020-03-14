@@ -16,7 +16,7 @@ curl -skL https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily/${versi
 
 qemu-img resize -f raw disk.raw 203G
 loopx=$(losetup --show -f -P disk.raw)
-parted $loopx resizepart 1 100%
+parted $loopx resizepart 1 -1s
 e2fsck -f ${loopx}p1
 resize2fs -f ${loopx}p1
 tune2fs -O '^has_journal' ${loopx}p1
