@@ -16,8 +16,9 @@ curl -skL https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily/${versi
 
 qemu-img resize -f raw disk.raw 203G
 loopx=$(losetup --show -f -P disk.raw)
-parted $loopx print fix
-parted $loopx print
+sgdisk -d 1 $loopx
+sgdisk -N 0 $loopx
+fdisk -l $loopx
 resize2fs -f ${loopx}p1
 tune2fs -O '^has_journal' ${loopx}p1
 sleep 1
@@ -36,7 +37,7 @@ chmod 600 home/stack/.ssh/authorized_keys
 ( umask 226 && echo "stack ALL=(ALL) NOPASSWD:ALL" > $MNTDIR/etc/sudoers.d/50_stack_sh )
 ( umask 226 && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"' > $MNTDIR/etc/sudoers.d/env_keep )
 
-mkdir -p $MNTDIR/etc/{systemd/system-environment-generators,sysctl.d,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $MNTDIR/etc/systemd/{system,network,journald.conf.d}
+mkdir -p $MNTDIR/etc/{systemd/{last.target.wants,system-environment-generators},sysctl.d,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $MNTDIR/etc/systemd/journald.conf.d
 
 cat << EOF > $MNTDIR/etc/profile.d/python.sh
 #!/bin/sh
