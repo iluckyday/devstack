@@ -165,8 +165,8 @@ EOF
 
 cat << EOF > $MNTDIR/home/stack/.devstack-install.sh
 #!/bin/bash
-apt update
-apt install -y git
+sudo apt update
+sudo apt install -y git
 
 git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
