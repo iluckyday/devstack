@@ -178,7 +178,7 @@ systemctl set-default multi-user.target
 
 find / ! -path /proc ! -path /sys -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
-rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/local/share/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/*
+rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc /usr/local/share/doc /usr/share/man /tmp/* /var/tmp/* /var/cache/apt/*
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
@@ -197,7 +197,7 @@ do
 	ln -sf /dev/null $MNTDIR/etc/systemd/system/$i
 done
 
-for f in /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
+for f in /var/log/* /usr/share/doc /usr/share/local/doc /usr/share/man /tmp/* /var/tmp/* /var/cache/apt/* ; do
 	rm -rf $MNTDIR$f
 done
 
@@ -205,7 +205,7 @@ find $MNTDIR/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name
 
 sed -i -e 's/defaults/defaults,noatime/' -e 's/discard/discard,noatime/' $MNTDIR/etc/fstab
 echo tmpfs /tmp tmpfs rw,mode=1777,strictatime,nosuid,nodev,size=90% 0 0 >> $MNTDIR/etc/fstab
-sed -i 'src/d' $MNTDIR/etc/apt/sources.list
+sed -i '/src/d' $MNTDIR/etc/apt/sources.list
 
 cd /tmp
 sync $MNTDIR
