@@ -6,7 +6,8 @@ before_install:
   - sudo rm -rf /etc/apt/sources.list.d
   - sudo sed -i '/src/d' /etc/apt/sources.list
   - sudo apt-get update
-  - sudo apt-get -qqy install qemu-system-x86 qemu-utils
+  - sudo apt-get -qqy install debootstrap kpartx qemu-system-x86 qemu-utils python3-pip
+  - sudo pip3 --no-cache-dir install diskimage-builder
 
 script:
   - sudo /bin/bash travisci/build.sh

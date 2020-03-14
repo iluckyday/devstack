@@ -3,69 +3,54 @@ set -e
 
 #DEVSTACK_BRANCH=stable/train
 DEVSTACK_BRANCH=master
-UBUNTU_RELEASE=bionic
+DEBIAN_RELEASE=buster
+DEBIAN_RELEASE_NUM=10
 WORKDIR=/tmp/devstack
+MNTDIR=$WORKDIR/mnt
 
-mkdir -p $WORKDIR/elements/devstack/files/home/stack $WORKDIR/elements/devstack/files/etc/{systemd/system-environment-generators,sysctl.d,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $WORKDIR/elements/devstack/files/etc/systemd/{system,network,journald.conf.d} $WORKDIR/elements/devstack/cleanup.d
+mkdir -p $MNTDIR
+cd $WORKDIR
 
-cat << "EOF" > $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
-#!/bin/bash
-SCRIPTDIR=$(dirname $0)
-cp -R $SCRIPTDIR/../files/* $TARGET_ROOT
+version=$(curl -skL https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily | awk '/href/ {s=$0} END {print s}' | awk -F'"' '{sub(/\//,"",$2);print $2}')
+curl -kL -# https://cdimage.debian.org/cdimage/cloud/$DEBIAN_RELEASE/daily/${version}/debian-$DEBIAN_RELEASE_NUM-nocloud-amd64-daily-${version}.tar.xz | tar -xJ
 
-chroot --userspec=${DIB_DEV_USER_USERNAME}:${DIB_DEV_USER_USERNAME} $TARGET_ROOT /bin/bash -c "
-touch /home/${DIB_DEV_USER_USERNAME}/.hushlogin
-echo -e 'export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null\n\nsource .adminrc' >> /home/${DIB_DEV_USER_USERNAME}/.bashrc
+qemu-img resize -f raw disk.raw 203G
+loopx=$(losetup --show -f -P disk.raw)
+(sleep 1; echo "d"; echo "1"; echo "n"; echo ""; echo ""; echo ""; sleep 1; echo "w"; echo "") | fdisk -w always ${loopx}
+e2fsck -f ${loopx}p1
+resize2fs -f ${loopx}p1
+tune2fs -O '^has_journal' ${loopx}p1
+sleep 1
+mount ${loopx}p1 $MNTDIR
+
+chroot $MNTDIR useradd -s /bin/bash -m stack
+chroot --userspec=stack:stack $MNTDIR /bin/bash -c "
+touch /home/stack/.hushlogin
+echo -e 'export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null\n\nsource .adminrc' >> /home/stack/.bashrc
+mkdir -p /home/stack/.ssh
+chmod 700 /home/stack/.ssh
+echo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp > /home/stack/.ssh/authorized_keys
+chmod 600 home/stack/.ssh/authorized_keys
 "
 
-chroot $TARGET_ROOT /bin/bash -c "
-chown -R ${DIB_DEV_USER_USERNAME}:${DIB_DEV_USER_USERNAME} /home/${DIB_DEV_USER_USERNAME}
-ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > /etc/resolv.conf.ORIG
-echo devstack > /etc/hostname
-echo -e '\n\nnet.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr' > /etc/sysctl.conf
+( umask 226 && echo "stack ALL=(ALL) NOPASSWD:ALL" > $MNTDIR/etc/sudoers.d/50_stack_sh )
+( umask 226 && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"' > $MNTDIR/etc/sudoers.d/env_keep )
 
-groupadd kvm
-usermod -a -G kvm ${DIB_DEV_USER_USERNAME}
+mkdir -p $MNTDIR/etc/{systemd/system-environment-generators,sysctl.d,profile.d,dpkg/dpkg.cfg.d,apt/apt.conf.d,sudoers.d} $MNTDIR/etc/systemd/{system,network,journald.conf.d}
 
-systemctl set-default last.target
-systemctl enable systemd-networkd devstack-install
-systemctl mask apt-daily.timer apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer motd-news.timer
-
-for f in /etc/dib-manifests /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
-    rm -rf $TARGET_ROOT$f
-done
-find $TARGET_ROOT/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} + || true
-"
-EOF
-chmod +x  $WORKDIR/elements/devstack/cleanup.d/99-zz-devstack
-
-cat << EOF > $WORKDIR/elements/devstack/files/etc/fstab
-LABEL=cloudimg-rootfs /    ext4  defaults,noatime                            0 0
-tmpfs                 /tmp tmpfs mode=1777,strictatime,nosuid,nodev,size=90% 0 0
-EOF
-
-( umask 226 && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE PYTHONHISTFILE"' > $WORKDIR/elements/devstack/files/etc/sudoers.d/env_keep )
-
-cat << EOF > $WORKDIR/elements/devstack/files/etc/profile.d/python.sh
+cat << EOF > $MNTDIR/etc/profile.d/python.sh
 #!/bin/sh
-
 export PYTHONDONTWRITEBYTECODE=1 PYTHONHISTFILE=/dev/null
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/authorized_keys
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp
-EOF
-
-cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/system-environment-generators/20-python
+cat << EOF > $MNTDIR/etc/systemd/system-environment-generators/20-python
 #!/bin/sh
-
 echo 'PYTHONDONTWRITEBYTECODE=1'
 echo 'PYTHONHISTFILE=/dev/null'
 EOF
-chmod +x $WORKDIR/elements/devstack/files/etc/systemd/system-environment-generators/20-python
+chmod +x $MNTDIR/etc/systemd/system-environment-generators/20-python
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/apt/apt.conf.d/99-freedisk
+cat << EOF > $MNTDIR/etc/apt/apt.conf.d/99-freedisk
 APT::Authentication "0";
 APT::Get::AllowUnauthenticated "1";
 Dir::Cache "/dev/shm";
@@ -74,7 +59,7 @@ Dir::Log "/dev/shm";
 DPkg::Post-Invoke {"/bin/rm -f /dev/shm/archives/*.deb || true";};
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/dpkg/dpkg.cfg.d/99-nodoc
+cat << EOF > $MNTDIR/etc/dpkg/dpkg.cfg.d/99-nodoc
 path-exclude /usr/share/doc/*
 path-exclude /usr/share/man/*
 path-exclude /usr/share/groff/*
@@ -85,39 +70,37 @@ path-exclude /usr/share/locale/*
 path-include /usr/share/locale/en*
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/pip.conf
+cat << EOF > $MNTDIR/etc/pip.conf
 [global]
 download-cache = /tmp
 cache-dir = /tmp
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/sysctl.d/20-tcp-bbr.conf
+cat << EOF > $MNTDIR/etc/sysctl.d/20-tcp-bbr.conf
 net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=bbr
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/journald.conf.d/storage.conf
+cat << EOF > $MNTDIR/etc/systemd/journald.conf.d/storage.conf
 [Journal]
 Storage=volatile
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/network/20-dhcp.network
+cat << EOF > $MNTDIR/etc/systemd/network/20-dhcp.network
 [Match]
 Name=en*
-
 [Network]
 DHCP=ipv4
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/network/30-br-ex.network
+cat << EOF > $MNTDIR/etc/systemd/network/30-br-ex.network
 [Match]
 Name=br-ex
-
 [Network]
 Address=172.24.4.1/24
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/system/last.target
+cat << EOF > $MNTDIR/etc/systemd/system/last.target
 [Unit]
 Description=Last Target for Last Commands
 Requires=multi-user.target
@@ -125,25 +108,21 @@ After=multi-user.target
 Conflicts=rescue.service rescue.target
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/etc/systemd/system/devstack-install.service
+cat << EOF > $MNTDIR/etc/systemd/system/devstack-install.service
 [Unit]
 Description=DevStack Install Service
 Wants=network-online.target
 After=network-online.target
 ConditionPathExists=!/etc/devstack-version
 SuccessAction=poweroff
-
 [Service]
 Type=oneshot
 User=stack
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
-
-[Install]
-WantedBy=last.target
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.adminrc
+cat << EOF > $MNTDIR/home/stack/.adminrc
 export OS_USERNAME=admin
 export OS_PASSWORD=devstack
 export OS_AUTH_URL=http://10.0.2.15/identity
@@ -157,7 +136,7 @@ export OS_USER_DOMAIN_ID=default
 export OS_PROJECT_DOMAIN_ID=default
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-local.conf
+cat << EOF > $MNTDIR/home/stack/.devstack-local.conf
 [[local|localrc]]
 disable_service tempest dstat
 disable_service c-sch c-api c-vol
@@ -183,54 +162,61 @@ ENABLE_DEBUG_LOG_LEVEL=False
 DEBUG_LIBVIRT=False
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-install.sh
+cat << EOF > $MNTDIR/home/stack/.devstack-install.sh
 #!/bin/bash
+apt update
+apt install -y git
 
 git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 /tmp/devstack/stack.sh
 EOF
 
-cat << EOF > $WORKDIR/elements/devstack/files/home/stack/.devstack-install-post.sh
+cat << EOF > $MNTDIR/home/stack/.devstack-install-post.sh
 #!/bin/bash
-
 systemctl set-default multi-user.target
-apt-get remove --purge -y networkd-dispatcher cpio crda iso-codes initramfs-tools initramfs-tools-bin initramfs-tools-core intel-microcode iucode-tool iw klibc-utils libklibc linux-firmware linux-modules-extra-* shared-mime-info wireless-regdb git git-man cpp g++ g++-7 gcc gcc-7 qemu-slof qemu-system-arm qemu-system-mips qemu-system-misc qemu-system-ppc qemu-system-s390x qemu-system-sparc
+
 find / ! -path /proc ! -path /sys -type d -name __pycache__ -delete 2>/dev/null
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en' -delete 2>/dev/null
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml /usr/share/doc/* /usr/local/share/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/*
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
-PY_DIB_PATH=$(python3 -c "import os,diskimage_builder; print(os.path.dirname(diskimage_builder.__file__))")
-sed -i 's/-i 4096/-i 16384 -O ^has_journal/' "$PY_DIB_PATH"/lib/disk-image-create
-sed -i 's/vga=normal/quiet ipv6.disable=1/' "$PY_DIB_PATH"/elements/bootloader/cleanup.d/51-bootloader
-sed -i -e '/gnupg/d' "$PY_DIB_PATH"/elements/debian-minimal/root.d/75-debian-minimal-baseinstall
-for i in cloud-init debian-networking baseline-environment baseline-tools write-dpkg-manifest copy-manifests-dir ; do
-    rm -rf "$PY_DIB_PATH"/elements/*/*/*$i
+
+ln -sf /usr/share/zoneinfo/Asia/Shanghai $MNTDIR/etc/localtime
+echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > $MNTDIR/etc/resolv.conf.ORIG
+echo devstack > $MNTDIR/etc/hostname
+echo -e '\n\nnet.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr' > $MNTDIR/etc/sysctl.conf
+ln -sf /etc/systemd/system/last.target $MNTDIR/etc/systemd/system/default.target
+ln -sf /etc/systemd/system/devstack-install.service $MNTDIR/etc/systemd/system/last.target.wants/devstack-install.service
+ln -sf /lib/systemd/system/systemd-networkd.service $MNTDIR/etc/systemd/system/dbus-org.freedesktop.network1.service
+ln -sf /lib/systemd/system/systemd-networkd.service $MNTDIR/etc/systemd/system/multi-user.target.wants/systemd-networkd.service
+ln -sf /lib/systemd/system/systemd-networkd.socket $MNTDIR/etc/systemd/system/sockets.target.wants/systemd-networkd.socket
+ln -sf /lib/systemd/system/systemd-networkd-wait-online.service $MNTDIR/etc/systemd/system/network-online.target.wants/systemd-networkd-wait-online.service
+for i in apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer logrotate.timer cron.service chrony.service apparmor.service e2scrub_reap.service unattended-upgrades.service ifup@.service
+do
+	ln -sf /dev/null $MNTDIR/etc/systemd/system/$i
 done
 
-DIB_QUIET=1 \
-DIB_IMAGE_SIZE=200 \
-DIB_JOURNAL_SIZE=0 \
-DIB_EXTLINUX=1 \
-ELEMENTS_PATH=$WORKDIR/elements \
-DIB_IMAGE_CACHE=/dev/shm \
-DIB_RELEASE=$UBUNTU_RELEASE \
-DIB_DEBIAN_COMPONENTS=main,restricted,universe,multiverse \
-DIB_APT_MINIMAL_CREATE_INTERFACES=0 \
-DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --no-check-gpg" \
-DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --include=bash-completion,iproute2,tzdata,git" \
-DIB_DEBOOTSTRAP_EXTRA_ARGS+=" --exclude=unattended-upgrades" \
-DIB_DISTRIBUTION_MIRROR_UBUNTU_INSECURE=1 \
-DIB_DEV_USER_USERNAME=stack \
-DIB_DEV_USER_PASSWORD=stack \
-DIB_DEV_USER_SHELL=/bin/bash \
-DIB_DEV_USER_AUTHORIZED_KEYS=$WORKDIR/elements/devstack/files/authorized_keys \
-DIB_DEV_USER_PWDLESS_SUDO=yes \
-disk-image-create -o /tmp/devstack.qcow2 vm block-device-mbr cleanup-kernel-initrd devuser devstack ubuntu-minimal
+for f in /var/log/* /usr/share/doc/* /usr/share/local/doc/* /usr/share/man/* /tmp/* /var/tmp/* /var/cache/apt/* ; do
+    rm -rf $MNTDIR$f
+done
 
-qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.qcow2,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+find $MNTDIR/usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -exec rm -rf {} + || true
+
+sed -i -e 's/defaults/defaults,noatime/' -e 's/discard/discard,noatime/' $MNTDIR/etc/fstab
+echo tmpfs /tmp tmpfs rw,mode=1777,strictatime,nosuid,nodev,size=90% 0 0 >> $MNTDIR/etc/fstab
+sed -i 'src/d' $MNTDIR/etc/apt/sources.list
+
+cd /tmp
+sync $MNTDIR
+sleep 1
+umount ${loopx}p1
+sleep 1
+losetup -d $loopx
+sleep 1
+
+qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR/disk.raw,if=virtio,format=qcow2,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 while pgrep -f "devstack-building" >/dev/null
 do
@@ -239,10 +225,10 @@ do
 done
 
 echo "Original image size:"
-ls -lh /tmp/devstack.qcow2
+ls -lh $WORKDIR/disk.raw
 
 echo Converting ...
-qemu-img convert -f qcow2 -c -O qcow2 /tmp/devstack.qcow2 /dev/shm/devstack.cmp.img
+qemu-img convert -f raw -c -O qcow2 $WORKDIR/disk.raw /dev/shm/devstack.cmp.img
 
 echo "Compressed image size:"
 ls -lh /dev/shm/devstack.cmp.img
