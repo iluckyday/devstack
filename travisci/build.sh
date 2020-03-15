@@ -170,6 +170,9 @@ sudo apt install -y git
 
 git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
+
+sed -i 's/libmysqlclient-dev/default-libmysqlclient-dev/' /tmp/devstack/files/debs/{nova,neutron-common,general}
+
 /tmp/devstack/stack.sh
 EOF
 
