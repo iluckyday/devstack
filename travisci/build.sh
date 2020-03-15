@@ -166,12 +166,12 @@ EOF
 cat << EOF > $MNTDIR/home/stack/.devstack-install.sh
 #!/bin/bash
 sudo apt update
-sudo apt install -y git python3-distutils
+sudo DEBIAN_FRONTEND=noninteractive apt install -y git python3-distutils
 
 git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
-sed -i 's/libmysqlclient-dev/default-libmysqlclient-dev/' /tmp/devstack/files/debs/{nova,neutron-common,general}
+sed -i -e 's/libmysqlclient-dev/default-libmysqlclient-dev/' -e 's/mysql-server/mariadb-server/' /tmp/devstack/files/debs/{nova,neutron-common,general}
 
 /tmp/devstack/stack.sh
 EOF
