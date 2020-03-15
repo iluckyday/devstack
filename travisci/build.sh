@@ -166,7 +166,7 @@ EOF
 cat << EOF > $MNTDIR/home/stack/.devstack-install.sh
 #!/bin/bash
 sudo apt update
-sudo apt install -y git
+sudo apt install -y git python3-distutils
 
 git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
