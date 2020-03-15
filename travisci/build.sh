@@ -153,6 +153,7 @@ IP_VERSION=4
 GIT_DEPTH=1
 SERVICE_IP_VERSION=4
 HOST_IP=10.0.2.15
+MYSQL_SERVICE_NAME=mariadb
 LIBVIRT_TYPE=kvm
 DOWNLOAD_DEFAULT_IMAGES=True
 RECLONE=yes
@@ -172,8 +173,6 @@ git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devsta
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i -e 's/libmysqlclient-dev/default-libmysqlclient-dev/' -e 's/mysql-server/mariadb-server/' /tmp/devstack/files/debs/{nova,neutron-common,general}
-cat /tmp/devstack/files/debs/{nova,neutron-common,general}
-exit
 
 /tmp/devstack/stack.sh
 EOF
