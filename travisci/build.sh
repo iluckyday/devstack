@@ -172,6 +172,8 @@ git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devsta
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i -e 's/libmysqlclient-dev/default-libmysqlclient-dev/' -e 's/mysql-server/mariadb-server/' /tmp/devstack/files/debs/{nova,neutron-common,general}
+cat /tmp/devstack/files/debs/{nova,neutron-common,general}
+exit
 
 /tmp/devstack/stack.sh
 EOF
