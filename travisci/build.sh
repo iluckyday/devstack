@@ -239,7 +239,7 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=$WORKDIR/stack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/stack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 while pgrep -f "devstack-building" >/dev/null
 do
@@ -248,10 +248,10 @@ do
 done
 
 echo "Original image size:"
-ls -lh $WORKDIR/stack.raw
+ls -lh /tmp/stack.raw
 
 echo Converting ...
-qemu-img convert -f raw -c -O qcow2 $WORKDIR/stack.raw /dev/shm/devstack.cmp.img
+qemu-img convert -f raw -c -O qcow2 /tmp/stack.raw /dev/shm/devstack.cmp.img
 
 echo "Compressed image size:"
 ls -lh /dev/shm/devstack.cmp.img
