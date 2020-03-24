@@ -16,7 +16,7 @@ mkfs.ext4 -F -L debian-root -b 1024 -I 128 -O "^has_journal" $loopx
 mkdir -p ${mount_dir}
 mount $loopx ${mount_dir}
 
-/usr/sbin/debootstrap --no-check-gpg --no-check-certificate --cache-dir=/tmp --components=main,contrib,non-free --include="$base_apps" --exclude="$exclude_apps" sid ${mount_dir} https://mirrors.aliyun.com/debian
+/usr/sbin/debootstrap --no-check-gpg --no-check-certificate --components=main,contrib,non-free --include="$base_apps" --exclude="$exclude_apps" sid ${mount_dir} https://mirrors.aliyun.com/debian
 
 echo Config system ...
 mount -t proc none ${mount_dir}/proc
