@@ -209,7 +209,6 @@ LABEL debian
 	APPEND root=LABEL=debian-root console=ttyS0 quiet
 EOF
 
-mkdir ${mount_dir}/etc/sudoers.d
 ( umask 226 && echo "stack ALL=(ALL) NOPASSWD:ALL" > ${mount_dir}/etc/sudoers.d/50_stack_sh && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > ${mount_dir}/etc/sudoers.d/env_keep )
 
 chroot ${mount_dir} /bin/bash -c "
