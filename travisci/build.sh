@@ -185,8 +185,7 @@ EOF
 
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > ${mount_dir}/etc/resolv.conf.ORIG
 echo devstack > ${mount_dir}/etc/hostname
-mkdir ${mount_dir}/etc/systemd/system/last.target.wants
-mkdir ${mount_dir}/etc/systemd/system/sockets.target.wants
+mkdir ${mount_dir}/etc/systemd/system/last.target.wants ${mount_dir}/etc/systemd/system/sockets.target.wants ${mount_dir}/etc/systemd/system/network-online.target.wants
 ln -sf /etc/systemd/system/last.target ${mount_dir}/etc/systemd/system/default.target
 ln -sf /etc/systemd/system/devstack-install.service ${mount_dir}/etc/systemd/system/last.target.wants/devstack-install.service
 ln -sf /lib/systemd/system/systemd-networkd.service ${mount_dir}/etc/systemd/system/dbus-org.freedesktop.network1.service
