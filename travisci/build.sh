@@ -188,17 +188,6 @@ EOF
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > ${mount_dir}/etc/resolv.conf.ORIG
 echo devstack > ${mount_dir}/etc/hostname
 echo 127.0.0.1 devstack >> ${mount_dir}/etc/hosts
-mkdir ${mount_dir}/etc/systemd/system/last.target.wants ${mount_dir}/etc/systemd/system/sockets.target.wants ${mount_dir}/etc/systemd/system/network-online.target.wants
-ln -sf /etc/systemd/system/last.target ${mount_dir}/etc/systemd/system/default.target
-ln -sf /etc/systemd/system/devstack-install.service ${mount_dir}/etc/systemd/system/last.target.wants/devstack-install.service
-ln -sf /lib/systemd/system/systemd-networkd.service ${mount_dir}/etc/systemd/system/dbus-org.freedesktop.network1.service
-ln -sf /lib/systemd/system/systemd-networkd.service ${mount_dir}/etc/systemd/system/multi-user.target.wants/systemd-networkd.service
-ln -sf /lib/systemd/system/systemd-networkd.socket ${mount_dir}/etc/systemd/system/sockets.target.wants/systemd-networkd.socket
-ln -sf /lib/systemd/system/systemd-networkd-wait-online.service ${mount_dir}/etc/systemd/system/network-online.target.wants/systemd-networkd-wait-online.service
-for i in apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer logrotate.timer cron.service apparmor.service e2scrub_reap.service
-do
-	ln -sf /dev/null ${mount_dir}/etc/systemd/system/$i
-done
 
 mkdir -p ${mount_dir}/boot/syslinux
 cat << EOF > ${mount_dir}/boot/syslinux/syslinux.cfg
@@ -219,6 +208,10 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin PYTHONDONTWRITEBYTECODE=1 DEBIAN_FRONT
 useradd -s /bin/bash -m stack
 sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+systemctl set-default last.target
+systemctl enable devstack-install.service systemd-networkd.service systemd-resolvd.service
+systemctl mask apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer logrotate.timer cron.service apparmor.service e2scrub_reap.service
+
 apt update
 apt install -y linux-image-amd64 extlinux
 dd if=/usr/lib/syslinux/mbr/mbr.bin of=$loopx
