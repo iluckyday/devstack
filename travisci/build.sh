@@ -158,6 +158,8 @@ EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
+systemctl status systemd-networkd
+sudo systemctl start systemd-networkd
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git python3-distutils
 
@@ -185,6 +187,7 @@ EOF
 
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > ${mount_dir}/etc/resolv.conf.ORIG
 echo devstack > ${mount_dir}/etc/hostname
+echo 127.0.0.1 devstack >> ${mount_dir}/etc/hosts
 mkdir ${mount_dir}/etc/systemd/system/last.target.wants ${mount_dir}/etc/systemd/system/sockets.target.wants ${mount_dir}/etc/systemd/system/network-online.target.wants
 ln -sf /etc/systemd/system/last.target ${mount_dir}/etc/systemd/system/default.target
 ln -sf /etc/systemd/system/devstack-install.service ${mount_dir}/etc/systemd/system/last.target.wants/devstack-install.service
