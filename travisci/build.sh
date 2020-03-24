@@ -161,12 +161,12 @@ EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
-systemctl status systemd-networkd
-sudo systemctl start systemd-networkd
+set -ex
+
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git python3-distutils
 
-git clone -b $DEVSTACK_BRANCH https://opendev.org/openstack/devstack /tmp/devstack
+git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i -e 's/libmysqlclient-dev/default-libmysqlclient-dev/' -e 's/mysql-server/mariadb-server/' /tmp/devstack/files/debs/{nova,neutron-common,general}
