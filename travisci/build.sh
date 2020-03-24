@@ -162,6 +162,8 @@ EOF
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
 set -ex
+cat /etc/apt/source.list
+exit
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git python3-distutils
