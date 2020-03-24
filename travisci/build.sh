@@ -113,6 +113,9 @@ User=stack
 StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
+
+[Install]
+WantedBy=last.target
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.adminrc
