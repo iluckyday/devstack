@@ -179,7 +179,7 @@ cat << EOF > ${mount_dir}/home/stack/.devstack-install-post.sh
 systemctl set-default multi-user.target
 
 find /usr -type d -name __pycache__ -prune -exec rm -rf {} +
-find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -prune -exec rm -rf {} +
+find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
 rm -rf /etc/resolv.conf /usr/share/doc /usr/local/share/doc /usr/share/man /tmp/* /var/log/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
 rm -rf /lib/modules/*/kernel/sound /lib/modules/*/kernel/net/wireless /lib/modules/*/kernel/drivers/net/wireless /lib/modules/*/kernel/drivers/gpu /lib/modules/*/kernel/drivers/media /lib/modules/*/kernel/drivers/hid /lib/modules/*/kernel/drivers/usb /lib/modules/*/kernel/drivers/isdn /lib/modules/*/kernel/drivers/infiniband /lib/modules/*/kernel/drivers/video
@@ -188,6 +188,7 @@ rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
+echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > ${mount_dir}/etc/resolv.conf
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > ${mount_dir}/etc/resolv.conf.ORIG
 echo devstack > ${mount_dir}/etc/hostname
 echo 127.0.0.1 devstack >> ${mount_dir}/etc/hosts
