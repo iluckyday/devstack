@@ -1,9 +1,9 @@
 #!/bin/sh
-set -e
+set -ex
 
 DEVSTACK_BRANCH=master
 
-base_apps="bash-completion,openssh-server"
+base_apps="sudo,bash-completion,openssh-server"
 exclude_apps="ifupdown,unattended-upgrades"
 
 mount_dir=/tmp/stack
