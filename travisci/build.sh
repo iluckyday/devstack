@@ -205,11 +205,10 @@ EOF
 
 chroot ${mount_dir} /bin/bash -c "
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin PYTHONDONTWRITEBYTECODE=1 DEBIAN_FRONTEND=noninteractive
-useradd -s /bin/bash -m stack
 sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
-systemctl enable devstack-install.service systemd-networkd.service systemd-resolvd.service
+systemctl enable devstack-install.service systemd-networkd.service
 systemctl mask apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer logrotate.timer cron.service apparmor.service e2scrub_reap.service
 
 apt update
