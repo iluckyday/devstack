@@ -18,7 +18,6 @@ mount $loopx ${mount_dir}
 
 /usr/sbin/debootstrap --no-check-gpg --no-check-certificate --components=main,contrib,non-free --include="$base_apps" --exclude="$exclude_apps" sid ${mount_dir}
 
-echo Config system ...
 mount -t proc none ${mount_dir}/proc
 mount -o bind /sys ${mount_dir}/sys
 mount -o bind /dev ${mount_dir}/dev
@@ -162,7 +161,7 @@ EOF
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
 set -ex
-cat /etc/apt/source.list
+cat /etc/apt/sources.list
 exit
 
 sudo apt update
