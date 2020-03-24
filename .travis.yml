@@ -1,0 +1,15 @@
+os: linux
+dist: bionic
+language: shell
+
+before_install:
+  - sudo rm -rf /etc/apt/sources.list.d
+  - sudo sed -i '/src/d' /etc/apt/sources.list
+  - sudo apt-get update
+  - sudo apt-get -y install qemu-system-x86 qemu-utils debootstrap
+
+script:
+  - sudo /bin/bash travisci/build.sh
+
+after_success:
+  - /bin/bash ffsend.sh
