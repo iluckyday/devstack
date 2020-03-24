@@ -16,12 +16,14 @@ mkfs.ext4 -F -L debian-root -b 1024 -I 128 -O "^has_journal" $loopx
 mkdir -p ${mount_dir}
 mount $loopx ${mount_dir}
 
-/usr/sbin/debootstrap --no-check-gpg --no-check-certificate --components=main,contrib,non-free --include="$base_apps" --exclude="$exclude_apps" sid ${mount_dir} https://mirrors.aliyun.com/debian
+/usr/sbin/debootstrap --no-check-gpg --no-check-certificate --components=main,contrib,non-free --include="$base_apps" --exclude="$exclude_apps" sid ${mount_dir}
 
 echo Config system ...
 mount -t proc none ${mount_dir}/proc
 mount -o bind /sys ${mount_dir}/sys
 mount -o bind /dev ${mount_dir}/dev
+
+chroot ${mount_dir} useradd -s /bin/bash -m stack
 
 cat << EOF > ${mount_dir}/etc/fstab
 LABEL=debian-root /            ext4    defaults,noatime             0 0
