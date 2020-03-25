@@ -171,7 +171,7 @@ cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 sed -i -e 's/libmysqlclient-dev/default-libmysqlclient-dev/' -e 's/mysql-server/mariadb-server/' /tmp/devstack/files/debs/{nova,neutron-common,general}
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
 
-/tmp/devstack/stack.sh
+bash -ex /tmp/devstack/stack.sh
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install-post.sh
@@ -179,7 +179,7 @@ cat << EOF > ${mount_dir}/home/stack/.devstack-install-post.sh
 systemctl set-default multi-user.target
 
 find /usr -type d -name __pycache__ -prune -exec rm -rf {} +
-find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
+#find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
 rm -rf /etc/resolv.conf /usr/share/doc /usr/local/share/doc /usr/share/man /tmp/* /var/log/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
 rm -rf /lib/modules/*/kernel/sound /lib/modules/*/kernel/net/wireless /lib/modules/*/kernel/drivers/net/wireless /lib/modules/*/kernel/drivers/gpu /lib/modules/*/kernel/drivers/media /lib/modules/*/kernel/drivers/hid /lib/modules/*/kernel/drivers/usb /lib/modules/*/kernel/drivers/isdn /lib/modules/*/kernel/drivers/infiniband /lib/modules/*/kernel/drivers/video
