@@ -170,6 +170,7 @@ cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i -e 's/libmysqlclient-dev/default-libmysqlclient-dev/' -e 's/mysql-server/mariadb-server/' /tmp/devstack/files/debs/{nova,neutron-common,general}
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
+sed -i 's/uninstall_package/echo/' /tmp/devstack/tools/install_pip.sh
 
 bash -ex /tmp/devstack/stack.sh
 EOF
