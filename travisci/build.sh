@@ -172,7 +172,11 @@ sed -i -e 's/libmysqlclient-dev/default-libmysqlclient-dev/' -e 's/mysql-server/
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
 sed -i 's/uninstall_package/echo/' /tmp/devstack/tools/install_pip.sh
 
-bash -ex /tmp/devstack/stack.sh
+/tmp/devstack/stack.sh
+
+sleep 5
+dpkg -l
+dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 50
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install-post.sh
