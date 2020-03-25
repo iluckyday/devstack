@@ -48,6 +48,7 @@ path-exclude /usr/share/info/*
 path-exclude /usr/share/lintian/*
 path-exclude /usr/share/linda/*
 path-exclude /usr/share/locale/*
+path-exclude /usr/lib/locale/*
 path-include /usr/share/locale/en*
 EOF
 
@@ -171,22 +172,23 @@ cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 sed -i -e 's/libmysqlclient-dev/default-libmysqlclient-dev/' -e 's/mysql-server/mariadb-server/' /tmp/devstack/files/debs/{nova,neutron-common,general}
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
 sed -i 's/uninstall_package/echo/' /tmp/devstack/tools/install_pip.sh
+sed -i 's/qemu-system/qemu-system-x86/' /tmp/devstack/lib/nova_plugins/functions-libvirt
 
 /tmp/devstack/stack.sh
 
 sleep 5
 dpkg -l
-dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 50
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
 systemctl set-default multi-user.target
 
+apt-get remove --purge -y iso-codes genisoimage git git-man
 find /usr -type d -name __pycache__ -prune -exec rm -rf {} +
-#find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
+find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
-rm -rf /etc/resolv.conf /usr/share/doc /usr/local/share/doc /usr/share/man /tmp/* /var/log/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
+rm -rf /etc/resolv.conf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /tmp/* /var/log/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
 rm -rf /lib/modules/*/kernel/sound /lib/modules/*/kernel/net/wireless /lib/modules/*/kernel/drivers/net/wireless /lib/modules/*/kernel/drivers/gpu /lib/modules/*/kernel/drivers/media /lib/modules/*/kernel/drivers/hid /lib/modules/*/kernel/drivers/usb /lib/modules/*/kernel/drivers/isdn /lib/modules/*/kernel/drivers/infiniband /lib/modules/*/kernel/drivers/video
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
@@ -217,7 +219,7 @@ sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
 systemctl enable devstack-install.service systemd-networkd.service
-systemctl mask apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer logrotate.timer cron.service apparmor.service e2scrub_reap.service
+systemctl mask apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer logrotate.timer e2scrub_reap.service
 
 apt update
 apt install -y linux-image-amd64 extlinux
@@ -248,6 +250,10 @@ do
 	echo Building ...
 	sleep 300
 done
+
+sleep 1
+sync
+sleep 1
 
 echo "Original image size:"
 du -h /tmp/stack.raw
