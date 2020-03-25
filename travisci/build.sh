@@ -164,6 +164,7 @@ set -ex
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git python3-distutils python3-pip
+sudo ln -s pip3 /usr/bin/pip
 
 git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
