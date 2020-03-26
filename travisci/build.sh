@@ -232,9 +232,10 @@ systemctl enable devstack-install.service systemd-networkd.service
 systemctl disable $disable_services
 
 apt update
-apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-kvm extlinux initramfs-tools
+apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-generic extlinux initramfs-tools
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
+rm -rf /lib/modules/*/kernel/sound /lib/modules/*/kernel/net/wireless /lib/modules/*/kernel/drivers/net/wireless /lib/modules/*/kernel/drivers/gpu /lib/modules/*/kernel/drivers/media /lib/modules/*/kernel/drivers/hid /lib/modules/*/kernel/drivers/usb /lib/modules/*/kernel/drivers/isdn /lib/modules/*/kernel/drivers/infiniband /lib/modules/*/kernel/drivers/video
 "
 
 chroot --userspec=stack:stack ${mount_dir} /bin/bash -c "
