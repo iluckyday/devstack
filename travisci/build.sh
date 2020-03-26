@@ -25,7 +25,7 @@ mkfs.ext4 -F -L ubuntu-root -b 1024 -I 128 -O "^has_journal" $loopx
 mount $loopx ${mount_dir}
 
 sed -i 's/ls -A/ls --ignore=lost+found -A/' /usr/sbin/debootstrap
-debootstrap --no-check-gpg --no-check-certificate --cache-dir /tmp --components=main,universe,restricted,multiverse --variant minbase --include "$base_apps" $UBUNTU_RELEASE ${mount_dir}
+debootstrap --no-check-gpg --no-check-certificate --components=main,universe,restricted,multiverse --variant minbase --include "$base_apps" $UBUNTU_RELEASE ${mount_dir}
 
 mount -t proc none ${mount_dir}/proc
 mount -o bind /sys ${mount_dir}/sys
