@@ -201,6 +201,7 @@ rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
+rm -f ${mount_dir}/etc/resolv.conf
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > ${mount_dir}/etc/resolv.conf
 echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > ${mount_dir}/etc/resolv.conf.ORIG
 echo devstack > ${mount_dir}/etc/hostname
@@ -256,8 +257,7 @@ curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-li
 unzip -d /tmp /tmp/ngrok.zip
 chmod +x /tmp/ngrok
 /tmp/ngrok authtoken $NGROK_TOKEN
-/tmp/ngrok tcp 22 --log stdout --log-level debug
-echo ok
+#/tmp/ngrok tcp 22 --log stdout --log-level debug
 
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
