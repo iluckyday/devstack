@@ -7,16 +7,17 @@ UBUNTU_RELEASE=bionic
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
 
-base_apps="systemd,systemd-sysv,sudo,bash-completion,openssh-server,tzdata"
+base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,tzdata"
 exclude_apps="ifupdown,unattended-upgrades"
 disable_services="e2scrub_reap.service \
-	systemd-timesyncd.service \
-	systemd-resolved.service \
-	apt-daily.timer \
-	apt-daily-upgrade.timer \
-	fstrim.timer \
-	e2scrub_all.timer \
-	motd-news.timer"
+systemd-timesyncd.service \
+systemd-resolved.service \
+apt-daily.timer \
+apt-daily-upgrade.timer \
+fstrim.timer \
+e2scrub_all.timer \
+motd-news.timer"
+
 apt-config dump | grep -we Recommends -e Suggests | sed 's/1/0/' | tee /etc/apt/apt.conf.d/99norecommends
 
 qemu-img create -f raw /tmp/devstack.raw 201G
@@ -163,7 +164,7 @@ LIBVIRT_TYPE=kvm
 DOWNLOAD_DEFAULT_IMAGES=True
 RECLONE=yes
 FORCE=yes
-VERBOSE=False
+VERBOSE=True
 SYSLOG=True
 ENABLE_DEBUG_LOG_LEVEL=False
 DEBUG_LIBVIRT=False
