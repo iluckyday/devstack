@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 DEVSTACK_BRANCH=master
 UBUNTU_RELEASE=bionic
