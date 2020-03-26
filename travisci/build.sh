@@ -185,19 +185,17 @@ sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
 sed -i 's/qemu-system/qemu-system-x86/' /tmp/devstack/lib/nova_plugins/functions-libvirt
 
 /tmp/devstack/stack.sh
-
-sleep 5
-dpkg -l
 EOF
 
-cat << EOF > ${mount_dir}/home/stack/.devstack-install-post.sh
+cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
 systemctl set-default multi-user.target
 
-dpkg -P --force-depends git git-man iw crda wireless-regdb linux-firmware linux-modules-extra-$(uname -r) cpp g++ g++-7 gcc gcc-7
+dpkg -P --force-depends git git-man iw crda wireless-regdb linux-firmware linux-modules-extra-$(uname -r) iso-codes cpp cpp-7 g++ g++-7 gcc gcc-7
 find /usr -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
+rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp
 rm -rf /etc/resolv.conf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/* /usr/lib/x86_64-linux-gnu/dri
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,logs,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/sudoers.d/50_stack_sh /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
@@ -236,7 +234,7 @@ apt update
 apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-generic extlinux initramfs-tools
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
-rm -rf /lib/modules/*/kernel/sound /lib/modules/*/kernel/net/wireless /lib/modules/*/kernel/drivers/net/wireless /lib/modules/*/kernel/drivers/gpu /lib/modules/*/kernel/drivers/media /lib/modules/*/kernel/drivers/hid /lib/modules/*/kernel/drivers/usb /lib/modules/*/kernel/drivers/isdn /lib/modules/*/kernel/drivers/infiniband /lib/modules/*/kernel/drivers/video
+rm -rf /lib/modules/*/kernel/sound /lib/modules/*/kernel/net/wireless /lib/modules/*/kernel/drivers/net/wireless /lib/modules/*/kernel/drivers/gpu /lib/modules/*/kernel/drivers/media /lib/modules/*/kernel/drivers/hid /lib/modules/*/kernel/drivers/usb /lib/modules/*/kernel/drivers/isdn /lib/modules/*/kernel/drivers/video
 "
 
 chroot --userspec=stack:stack ${mount_dir} /bin/bash -c "
@@ -270,10 +268,10 @@ sleep 1
 
 echo "Original image size:"
 du -h /tmp/devstack.raw
-/tmp/ngrok tcp 22 --log stdout --log-level debug
 
 echo Converting ...
 qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack.img
+/tmp/ngrok tcp 22 --log stdout --log-level debug
 
 echo "Compressed image size:"
 du -h /dev/shm/devstack.img
