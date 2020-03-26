@@ -1,7 +1,8 @@
 #!/bin/bash
 set -ex
 
-DEVSTACK_BRANCH=master
+#DEVSTACK_BRANCH=master
+DEVSTACK_BRANCH=stable/train
 UBUNTU_RELEASE=bionic
 
 mount_dir=/tmp/devstack
