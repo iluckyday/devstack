@@ -213,8 +213,8 @@ TIMEOUT 0
 DEFAULT ubuntu
 
 LABEL ubuntu
-	LINUX /boot/vmlinuz
-	INITRD /boot/initrd.img
+	LINUX /vmlinuz
+	INITRD /initrd.img
 	APPEND root=LABEL=ubuntu-root console=ttyS0 quiet
 EOF
 
@@ -256,7 +256,7 @@ curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-li
 unzip -d /tmp /tmp/ngrok.zip
 chmod +x /tmp/ngrok
 /tmp/ngrok authtoken $NGROK_TOKEN
-/tmp/ngrok tcp 22 --log stdout --log-level debug
+#/tmp/ngrok tcp 22 --log stdout --log-level debug
 
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
