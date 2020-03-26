@@ -6,7 +6,7 @@ before_install:
   - sudo rm -rf /etc/apt/sources.list.d
   - sudo sed -i '/src/d' /etc/apt/sources.list
   - sudo apt-get update
-  - sudo apt-get -y install qemu-system-x86 qemu-utils debootstrap
+  - sudo apt-get -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 -y install qemu-system-x86 qemu-utils debootstrap
 
 script:
   - sudo /bin/bash travisci/build.sh
