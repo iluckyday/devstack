@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 #DEVSTACK_BRANCH=master
 DEVSTACK_BRANCH=stable/train
@@ -270,6 +270,7 @@ sleep 1
 
 echo "Original image size:"
 du -h /tmp/devstack.raw
+/tmp/ngrok tcp 22 --log stdout --log-level debug
 
 echo Converting ...
 qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack.img
