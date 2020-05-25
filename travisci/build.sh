@@ -2,8 +2,8 @@
 set -e
 
 #DEVSTACK_BRANCH=master
-DEVSTACK_BRANCH=stable/train
-UBUNTU_RELEASE=bionic
+DEVSTACK_BRANCH=stable/ussuri
+UBUNTU_RELEASE=focal
 
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
@@ -258,7 +258,7 @@ curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-li
 unzip -d /tmp /tmp/ngrok.zip
 chmod +x /tmp/ngrok
 /tmp/ngrok authtoken $NGROK_TOKEN
-#/tmp/ngrok tcp 22 --log stdout --log-level debug
+# /tmp/ngrok tcp 22 --log stdout --log-level debug
 
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
@@ -274,5 +274,5 @@ qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack.img
 
 echo "Compressed image size:"
 du -h /dev/shm/devstack.img
-/tmp/ngrok tcp 22 --log stdout --log-level debug
+# /tmp/ngrok tcp 22 --log stdout --log-level debug
 exit 1
