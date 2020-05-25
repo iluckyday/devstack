@@ -8,7 +8,7 @@ UBUNTU_RELEASE=bionic
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
 
-base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,tzdata"
+base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,tzdata,ca-certificates"
 exclude_apps="ifupdown,unattended-upgrades"
 disable_services="e2scrub_reap.service \
 systemd-timesyncd.service \
