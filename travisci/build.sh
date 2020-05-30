@@ -216,7 +216,7 @@ DEFAULT ubuntu
 LABEL ubuntu
 	LINUX /vmlinuz
 	INITRD /initrd.img
-	APPEND root=LABEL=ubuntu-root console=ttyS0 quiet
+	APPEND root=LABEL=ubuntu-root console=ttyS0
 EOF
 
 ( umask 226 && echo "stack ALL=(ALL) NOPASSWD:ALL" > ${mount_dir}/etc/sudoers.d/50_stack_sh && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > ${mount_dir}/etc/sudoers.d/env_keep )
@@ -260,8 +260,8 @@ losetup -d $loopx
 #/tmp/ngrok authtoken $NGROK_TOKEN
 # /tmp/ngrok tcp 22 --log stdout --log-level debug
 
-ls -lh /tmp/devstack.raw
 
+qemu-system-x86_64 --version
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 sleep 1
