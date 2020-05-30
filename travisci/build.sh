@@ -8,7 +8,7 @@ UBUNTU_RELEASE=focal
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
 
-base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,tzdata,ca-certificates,git"
+base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,tzdata,ca-certificates"
 exclude_apps="ifupdown,unattended-upgrades"
 disable_services="e2scrub_reap.service \
 systemd-timesyncd.service \
@@ -174,6 +174,9 @@ EOF
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
 set -e
+
+sudo apt update
+sudo DEBIAN_FRONTEND=noninteractive apt install -y git
 
 git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
