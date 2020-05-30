@@ -253,11 +253,11 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-echo "travis:travis" | sudo chpasswd
-curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-unzip -d /tmp /tmp/ngrok.zip
-chmod +x /tmp/ngrok
-/tmp/ngrok authtoken $NGROK_TOKEN
+#echo "travis:travis" | sudo chpasswd
+#curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+#unzip -d /tmp /tmp/ngrok.zip
+#chmod +x /tmp/ngrok
+#/tmp/ngrok authtoken $NGROK_TOKEN
 # /tmp/ngrok tcp 22 --log stdout --log-level debug
 
 ls -lh /tmp/devstack.raw
@@ -277,4 +277,4 @@ qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack.img
 echo "Compressed image size:"
 du -h /dev/shm/devstack.img
 # /tmp/ngrok tcp 22 --log stdout --log-level debug
-exit 1
+exit 0
