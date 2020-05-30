@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-#DEVSTACK_BRANCH=master
-DEVSTACK_BRANCH=stable/ussuri
+DEVSTACK_BRANCH=master
+#DEVSTACK_BRANCH=stable/ussuri
 UBUNTU_RELEASE=focal
 
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
 
-base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,tzdata,ca-certificates"
+base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,tzdata,ca-certificates,git"
 exclude_apps="ifupdown,unattended-upgrades"
 disable_services="e2scrub_reap.service \
 systemd-timesyncd.service \
@@ -40,7 +40,7 @@ LABEL=ubuntu-root /            ext4    defaults,noatime             0 0
 tmpfs             /tmp         tmpfs   mode=1777,size=80%           0 0
 EOF
 
-cat << EOF > ${mount_dir}/etc/apt/apt.conf.d/99-freedisk
+cat << EOF > ${mount_dir}/etc/apt/apt.conf.d/99freedisk
 APT::Authentication "0";
 APT::Get::AllowUnauthenticated "1";
 Dir::Cache "/dev/shm";
@@ -54,7 +54,7 @@ APT::Install-Recommends "0";
 APT::Install-Suggests "0";
 EOF
 
-cat << EOF > ${mount_dir}/etc/dpkg/dpkg.cfg.d/99-nodoc
+cat << EOF > ${mount_dir}/etc/dpkg/dpkg.cfg.d/99nodoc
 path-exclude /usr/share/doc/*
 path-exclude /usr/share/man/*
 path-exclude /usr/share/groff/*
@@ -173,10 +173,7 @@ EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
-set -ex
-
-sudo apt update
-sudo DEBIAN_FRONTEND=noninteractive apt install -y git
+set -e
 
 git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
