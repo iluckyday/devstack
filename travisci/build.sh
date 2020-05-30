@@ -50,7 +50,7 @@ DPkg::Post-Invoke {"/bin/rm -f /dev/shm/archives/*.deb || true";};
 EOF
 
 cat << EOF > ${mount_dir}/etc/apt/apt.conf.d/99norecommend
-APT::Install-Recommends "1";
+APT::Install-Recommends "0";
 APT::Install-Suggests "0";
 EOF
 
@@ -216,7 +216,7 @@ DEFAULT ubuntu
 LABEL ubuntu
 	LINUX /vmlinuz
 	INITRD /initrd.img
-	APPEND root=LABEL=ubuntu-root console=ttyS0
+	APPEND root=LABEL=ubuntu-root console=ttyS0 quiet
 EOF
 
 ( umask 226 && echo "stack ALL=(ALL) NOPASSWD:ALL" > ${mount_dir}/etc/sudoers.d/50_stack_sh && echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > ${mount_dir}/etc/sudoers.d/env_keep )
@@ -231,7 +231,7 @@ systemctl enable devstack-install.service systemd-networkd.service
 systemctl disable $disable_services
 
 apt update
-apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-generic extlinux initramfs-tools
+apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-kvm extlinux initramfs-tools
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
 rm -rf /lib/modules/*/kernel/sound /lib/modules/*/kernel/net/wireless /lib/modules/*/kernel/drivers/net/wireless /lib/modules/*/kernel/drivers/gpu /lib/modules/*/kernel/drivers/media /lib/modules/*/kernel/drivers/hid /lib/modules/*/kernel/drivers/usb /lib/modules/*/kernel/drivers/isdn /lib/modules/*/kernel/drivers/video

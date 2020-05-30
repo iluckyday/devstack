@@ -8,13 +8,7 @@ chmod +x /tmp/ffsend
 cd /dev/shm
 split -d -b 800M devstack.img devstack.img.
 
-for file in /dev/shm/devstack.img.*;
-do
-  FFSEND_URL=$(/tmp/ffsend -Ifyq upload $file)
-  data+=$FFSEND_URL
-done
-
-#FFSEND_URL=$(/tmp/ffsend -Ifyq upload /dev/shm/devstack.img)
+FFSEND_URL=$(/tmp/ffsend -Ifyq upload /dev/shm/devstack.img.*)
 
 echo $FFSEND_URL
 
