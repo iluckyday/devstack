@@ -1,5 +1,6 @@
 os: linux
-dist: focal
+#dist: focal
+dist: bionic
 language: shell
 
 before_install:
