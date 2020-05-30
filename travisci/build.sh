@@ -211,8 +211,8 @@ TIMEOUT 0
 DEFAULT ubuntu
 
 LABEL ubuntu
-	LINUX /vmlinuz
-	INITRD /initrd.img
+	LINUX /boot/vmlinuz
+	INITRD /boot/initrd.img
 	APPEND root=LABEL=ubuntu-root console=ttyS0 quiet
 EOF
 
