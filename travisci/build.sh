@@ -197,25 +197,24 @@ EOF
 
 cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
+rm -rf /etc/resolv.conf
+echo 'nameserver 1.1.1.1' > /etc/resolv.conf
+echo devstack > /etc/hostname
+echo 127.0.0.1 localhost devstack >> /etc/hosts
+
 systemctl set-default multi-user.target
 systemctl enable devstack@var-log-dirs.service
 
-dpkg -P --force-depends git git-man iso-codes
+apt remove -y --purge git git-man
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr /opt -type f -name "*.py[co]" -prune -exec rm -rf {} + 
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
 rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp
-rm -rf /etc/resolv.conf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/* /usr/lib/x86_64-linux-gnu/dri
+rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/* /usr/lib/x86_64-linux-gnu/dri
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
-
-rm -f ${mount_dir}/etc/resolv.conf
-echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf
-echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf.ORIG
-echo devstack > ${mount_dir}/etc/hostname
-echo 127.0.0.1 devstack >> ${mount_dir}/etc/hosts
 
 mkdir -p ${mount_dir}/boot/syslinux
 cat << EOF > ${mount_dir}/boot/syslinux/syslinux.cfg
@@ -273,6 +272,8 @@ chmod +x /tmp/ngrok
 
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
+sleep 1
+sync
 sleep 1
 sync
 sleep 1
