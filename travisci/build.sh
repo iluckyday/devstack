@@ -67,12 +67,6 @@ path-exclude /usr/lib/locale/*
 path-include /usr/share/locale/en*
 EOF
 
-mkdir -p ${mount_dir}/etc/systemd/journald.conf.d
-cat << EOF > ${mount_dir}/etc/systemd/journald.conf.d/storage.conf
-[Journal]
-Storage=volatile
-EOF
-
 mkdir -p ${mount_dir}/etc/systemd/system-environment-generators
 cat << EOF > ${mount_dir}/etc/systemd/system-environment-generators/20-python
 #!/bin/sh
