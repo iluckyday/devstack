@@ -100,6 +100,18 @@ Name=br-ex
 Address=172.24.4.1/24
 EOF
 
+cat << EOF > ${mount_dir}/etc/systemd/system/devstack@var-log-dirs.service
+[Unit]
+Description=Create /var/log sub-directories for DevStack
+After=var-log.mount
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "mkdir /var/log/{rabbitmq,apache2};chown rabbitmq:rabbitmq /var/log/rabbitmq"
+RemainAfterExit=yes
+[Install]
+WantedBy=local-fs.target
+EOF
+
 cat << EOF > ${mount_dir}/etc/systemd/system/last.target
 [Unit]
 Description=Last Target for Last Commands
@@ -186,8 +198,9 @@ EOF
 cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
 systemctl set-default multi-user.target
+systemctl enable devstack@var-log-dirs.service
 
-dpkg -P --force-depends git git-man iso-codes cpp cpp-9 g++ g++-9 gcc gcc-9
+dpkg -P --force-depends git git-man iso-codes
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr /opt -type f -name "*.py[co]" -prune -exec rm -rf {} + 
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
