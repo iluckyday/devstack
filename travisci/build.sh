@@ -192,7 +192,9 @@ cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 systemctl set-default multi-user.target
 
 #dpkg -P --force-depends git git-man iw crda wireless-regdb linux-firmware linux-modules-extra-$(uname -r) iso-codes cpp cpp-7 g++ g++-7 gcc gcc-7
-find /usr /opt -type d -name __pycache__ -a -name "*.dist-info" -a -name "*.egg-info" -prune -exec rm -rf {} +
+find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
+find /usr /opt -type d -name "*.dist-info" -prune -exec rm -rf {} +
+find /usr /opt -type d -name "*.egg-info" -prune -exec rm -rf {} +
 find /usr /opt -type f -name "*.py[co]" -prune -exec rm -rf {} + 
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
@@ -225,6 +227,7 @@ EOF
 chroot ${mount_dir} /bin/bash -c "
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin PYTHONDONTWRITEBYTECODE=1 DEBIAN_FRONTEND=noninteractive
 sed -i 's/root:\*:/root::/' etc/shadow
+echo stack:stack | chpasswd
 sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
@@ -235,12 +238,11 @@ apt update
 apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-kvm extlinux initramfs-tools
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
-rm -rf /lib/modules/*/kernel/sound /lib/modules/*/kernel/net/wireless /lib/modules/*/kernel/drivers/net/wireless /lib/modules/*/kernel/drivers/gpu /lib/modules/*/kernel/drivers/media /lib/modules/*/kernel/drivers/hid /lib/modules/*/kernel/drivers/usb /lib/modules/*/kernel/drivers/isdn /lib/modules/*/kernel/drivers/video
 "
 
 chroot --userspec=stack:stack ${mount_dir} /bin/bash -c "
 touch /home/stack/.hushlogin
-echo -e 'export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null\n\nsource .adminrc' >> /home/stack/.bashrc
+echo -e 'export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null PYTHONWARNINGS=ignore\n\nsource .adminrc' >> /home/stack/.bashrc
 mkdir -p /home/stack/.ssh
 chmod 700 /home/stack/.ssh
 echo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp > /home/stack/.ssh/authorized_keys
