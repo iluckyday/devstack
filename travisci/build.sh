@@ -38,6 +38,7 @@ chroot ${mount_dir} useradd -s /bin/bash -m stack
 cat << EOF > ${mount_dir}/etc/fstab
 LABEL=ubuntu-root /            ext4    defaults,noatime             0 0
 tmpfs             /tmp         tmpfs   mode=1777,size=80%           0 0
+tmpfs             /var/log     tmpfs   defaults,noatime             0 0
 EOF
 
 cat << EOF > ${mount_dir}/etc/apt/apt.conf.d/99freedisk
@@ -103,6 +104,20 @@ cat << EOF > ${mount_dir}/etc/systemd/network/30-br-ex.network
 Name=br-ex
 [Network]
 Address=172.24.4.1/24
+EOF
+
+cat << EOF > ${mount_dir}/etc/systemd/system/devstack@var-log-dirs.service
+[Unit]
+Description=Create /var/log sub-directories for DevStack
+After=var-log.mount
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "mkdir /var/log/{mysql,rabbitmq,apache2,keystone,glance,placement,nova,neutron};chown rabbitmq:rabbitmq /var/log/rabbitmq;for d in mysql keystone glance placement nova neutron; do chown $d:adm /var/log/$d;done"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=local-fs.target
 EOF
 
 cat << EOF > ${mount_dir}/etc/systemd/system/last.target
@@ -231,13 +246,14 @@ echo stack:stack | chpasswd
 sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
-systemctl enable devstack-install.service systemd-networkd.service
+systemctl enable devstack-install.service devstack@var-log-dirs.service systemd-networkd.service
 systemctl disable $disable_services
 
 apt update
 apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-kvm extlinux initramfs-tools
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
+rm -rf /var/log/* /tmp/* /var/tmp/*
 "
 
 chroot --userspec=stack:stack ${mount_dir} /bin/bash -c "
