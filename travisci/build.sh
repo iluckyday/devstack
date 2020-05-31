@@ -33,7 +33,7 @@ mount -t proc none ${mount_dir}/proc
 mount -o bind /sys ${mount_dir}/sys
 mount -o bind /dev ${mount_dir}/dev
 
-chroot ${mount_dir} useradd -s /bin/bash -m stack
+chroot ${mount_dir} useradd -s /bin/bash -m -G adm stack
 
 cat << EOF > ${mount_dir}/etc/fstab
 LABEL=ubuntu-root /            ext4    defaults,noatime             0 0
@@ -113,7 +113,7 @@ After=var-log.mount
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c "mkdir /var/log/{mysql,rabbitmq,apache2,keystone,glance,placement,nova,neutron};chown rabbitmq:rabbitmq /var/log/rabbitmq;for d in mysql keystone glance placement nova neutron; do chown $d:adm /var/log/$d;done"
+ExecStart=/bin/bash -c "mkdir /var/log/{rabbitmq,apache2};chown rabbitmq:rabbitmq /var/log/rabbitmq"
 RemainAfterExit=yes
 
 [Install]
@@ -206,10 +206,8 @@ cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
 systemctl set-default multi-user.target
 
-#dpkg -P --force-depends git git-man iw crda wireless-regdb linux-firmware linux-modules-extra-$(uname -r) iso-codes cpp cpp-7 g++ g++-7 gcc gcc-7
+dpkg -P --force-depends git git-man iso-codes cpp cpp-9 g++ g++-9 gcc gcc-9
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
-find /usr /opt -type d -name "*.dist-info" -prune -exec rm -rf {} +
-find /usr /opt -type d -name "*.egg-info" -prune -exec rm -rf {} +
 find /usr /opt -type f -name "*.py[co]" -prune -exec rm -rf {} + 
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
