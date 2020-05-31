@@ -100,20 +100,6 @@ Name=br-ex
 Address=172.24.4.1/24
 EOF
 
-cat << EOF > ${mount_dir}/etc/systemd/system/devstack@var-log-dirs.service
-[Unit]
-Description=Create /var/log sub-directories for DevStack
-After=var-log.mount
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash -c "mkdir /var/log/{rabbitmq,apache2};chown rabbitmq:rabbitmq /var/log/rabbitmq"
-RemainAfterExit=yes
-
-[Install]
-WantedBy=local-fs.target
-EOF
-
 cat << EOF > ${mount_dir}/etc/systemd/system/last.target
 [Unit]
 Description=Last Target for Last Commands
@@ -178,6 +164,7 @@ VERBOSE=True
 SYSLOG=True
 ENABLE_DEBUG_LOG_LEVEL=False
 DEBUG_LIBVIRT=False
+GIT_BASE=https://github.com
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
@@ -238,7 +225,7 @@ echo stack:stack | chpasswd
 sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
-systemctl enable devstack-install.service devstack@var-log-dirs.service systemd-networkd.service
+systemctl enable devstack-install.service systemd-networkd.service
 systemctl disable $disable_services
 
 apt update
