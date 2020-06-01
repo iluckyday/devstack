@@ -256,6 +256,9 @@ echo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hw
 chmod 600 home/stack/.ssh/authorized_keys
 "
 
+rm -rf ${mount_dir}/etc/resolv.conf
+echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf
+
 sync ${mount_dir}
 umount ${mount_dir}/dev ${mount_dir}/proc ${mount_dir}/sys
 sleep 1
