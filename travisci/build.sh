@@ -216,6 +216,12 @@ rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
 EOF
 
+rm -f ${mount_dir}/etc/resolv.conf
+echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf
+echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf.ORIG
+echo devstack > ${mount_dir}/etc/hostname
+echo 127.0.0.1 localhost devstack >> ${mount_dir}/etc/hosts
+
 mkdir -p ${mount_dir}/boot/syslinux
 cat << EOF > ${mount_dir}/boot/syslinux/syslinux.cfg
 PROMPT 0
@@ -255,9 +261,6 @@ chmod 700 /home/stack/.ssh
 echo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp > /home/stack/.ssh/authorized_keys
 chmod 600 home/stack/.ssh/authorized_keys
 "
-
-rm -rf ${mount_dir}/etc/resolv.conf
-echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf
 
 sync ${mount_dir}
 umount ${mount_dir}/dev ${mount_dir}/proc ${mount_dir}/sys
