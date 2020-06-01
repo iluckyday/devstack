@@ -199,8 +199,6 @@ cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
 rm -rf /etc/resolv.conf
 echo 'nameserver 1.1.1.1' > /etc/resolv.conf
-echo devstack > /etc/hostname
-echo 127.0.0.1 localhost devstack >> /etc/hosts
 
 systemctl set-default multi-user.target
 systemctl enable devstack@var-log-dirs.service
