@@ -370,7 +370,8 @@ systemctl set-default last.target
 systemctl disable $disable_services
 
 apt update
-apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-kvm extlinux initramfs-tools
+#apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-kvm extlinux initramfs-tools
+apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-generic extlinux initramfs-tools
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
 rm -rf /var/log/* /tmp/* /var/tmp/*
