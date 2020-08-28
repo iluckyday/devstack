@@ -55,9 +55,12 @@ APT::Install-Recommends "0";
 APT::Install-Suggests "0";
 EOF
 
-cat << EOF > ${mount_dir}/etc/dpkg/dpkg.cfg.d/99nodoc
+cat << EOF > ${mount_dir}/etc/dpkg/dpkg.cfg.d/99nofiles
+path-exclude *__pycache__*
+path-exclude *.py[co]
 path-exclude /usr/share/doc/*
 path-exclude /usr/share/man/*
+path-exclude /usr/share/bug/*
 path-exclude /usr/share/groff/*
 path-exclude /usr/share/info/*
 path-exclude /usr/share/lintian/*
@@ -65,19 +68,136 @@ path-exclude /usr/share/linda/*
 path-exclude /usr/share/locale/*
 path-exclude /usr/lib/locale/*
 path-include /usr/share/locale/en*
+path-exclude /usr/include/*
+#path-exclude /usr/lib/python3/dist-packages/*/tests*
+path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/CN*
+path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/JP*
+path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/KR*
+path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/TW*
+path-exclude *bin/perror
+path-exclude *bin/mysqlslap
+path-exclude *bin/mysqlbinlog
+path-exclude *bin/x86_64-linux-gnu-dwp
+path-exclude *bin/mysql_embedded
+path-exclude *bin/systemd-analyze
+path-exclude *bin/resolve_stack_dump
+path-exclude *bin/mysql_tzinfo_to_sql
+path-exclude *bin/sqldiff
+path-exclude *bin/etcdctl
+path-exclude *bin/myisamlog
+path-exclude *bin/mysqldump
+path-exclude *bin/aria_dump_log
+path-exclude *bin/mysqlimport
+path-exclude *bin/pdata_tools
+path-exclude /boot/System.map*
+path-exclude /lib/modules/*/fs/ocfs2*
+path-exclude /lib/modules/*/fs/nls*
+path-exclude /lib/modules/*/fs/ceph*
+path-exclude /lib/modules/*/fs/jffs2*
+path-exclude /lib/modules/*/fs/orangefs*
+path-exclude /lib/modules/*/fs/ufs*
+path-exclude /lib/modules/*/net/wireless*
+path-exclude /lib/modules/*/net/mpls*
+path-exclude /lib/modules/*/net/wimax*
+path-exclude /lib/modules/*/net/l2tp*
+path-exclude /lib/modules/*/net/nfc*
+path-exclude /lib/modules/*/net/tipc*
+path-exclude /lib/modules/*/net/appletalk*
+path-exclude /lib/modules/*/net/rds*
+path-exclude /lib/modules/*/net/dccp*
+path-exclude /lib/modules/*/net/netrom*
+path-exclude /lib/modules/*/net/lapb*
+path-exclude /lib/modules/*/net/mac80211*
+path-exclude /lib/modules/*/net/6lowpan*
+path-exclude /lib/modules/*/net/sunrpc*
+path-exclude /lib/modules/*/net/rxrpc*
+path-exclude /lib/modules/*/net/atm*
+path-exclude /lib/modules/*/net/psample*
+path-exclude /lib/modules/*/net/rose*
+path-exclude /lib/modules/*/net/ax25*
+path-exclude /lib/modules/*/net/8021q*
+path-exclude /lib/modules/*/net/9p*
+path-exclude /lib/modules/*/net/bluetooth*
+path-exclude /lib/modules/*/net/ife*
+path-exclude /lib/modules/*/net/ceph*
+path-exclude /lib/modules/*/net/phonet*
+path-exclude /lib/modules/*/drivers/media*
+path-exclude /lib/modules/*/drivers/mfd*
+path-exclude /lib/modules/*/drivers/hid*
+path-exclude /lib/modules/*/drivers/nfc*
+path-exclude /lib/modules/*/drivers/dca*
+path-exclude /lib/modules/*/drivers/thunderbolt*
+path-exclude /lib/modules/*/drivers/firmware*
+path-exclude /lib/modules/*/drivers/xen*
+path-exclude /lib/modules/*/drivers/spi*
+path-exclude /lib/modules/*/drivers/uio*
+path-exclude /lib/modules/*/drivers/hv*
+path-exclude /lib/modules/*/drivers/ptp*
+path-exclude /lib/modules/*/drivers/pcmcia*
+path-exclude /lib/modules/*/drivers/isdn*
+path-exclude /lib/modules/*/drivers/atm*
+path-exclude /lib/modules/*/drivers/w1*
+path-exclude /lib/modules/*/drivers/hwmon*
+path-exclude /lib/modules/*/drivers/dax*
+path-exclude /lib/modules/*/drivers/parport*
+path-exclude /lib/modules/*/drivers/ssb*
+path-exclude /lib/modules/*/drivers/infiniband*
+path-exclude /lib/modules/*/drivers/gpu*
+path-exclude /lib/modules/*/drivers/bluetooth*
+path-exclude /lib/modules/*/drivers/video*
+path-exclude /lib/modules/*/drivers/android*
+path-exclude /lib/modules/*/drivers/nvme*
+path-exclude /lib/modules/*/drivers/gnss*
+path-exclude /lib/modules/*/drivers/firewire*
+path-exclude /lib/modules/*/drivers/leds*
+path-exclude /lib/modules/*/drivers/net/fddi*
+path-exclude /lib/modules/*/drivers/net/hyperv*
+path-exclude /lib/modules/*/drivers/net/xen-netback*
+path-exclude /lib/modules/*/drivers/net/wireless*
+path-exclude /lib/modules/*/drivers/net/ipvlan*
+path-exclude /lib/modules/*/drivers/net/slip*
+path-exclude /lib/modules/*/drivers/net/usb*
+path-exclude /lib/modules/*/drivers/net/team*
+path-exclude /lib/modules/*/drivers/net/ppp*
+path-exclude /lib/modules/*/drivers/net/can*
+path-exclude /lib/modules/*/drivers/net/phy*
+path-exclude /lib/modules/*/drivers/net/vmxnet3*
+path-exclude /lib/modules/*/drivers/net/ieee802154*
+path-exclude /lib/modules/*/drivers/net/fjes*
+path-exclude /lib/modules/*/drivers/net/hippi*
+path-exclude /lib/modules/*/drivers/net/wan*
+path-exclude /lib/modules/*/drivers/net/plip*
+path-exclude /lib/modules/*/drivers/net/appletalk*
+path-exclude /lib/modules/*/drivers/net/wimax*
+path-exclude /lib/modules/*/drivers/net/arcnet*
+path-exclude /lib/modules/*/drivers/net/hamradio*
+path-exclude /lib/modules/*/sound*
 EOF
 
 mkdir -p ${mount_dir}/etc/systemd/system-environment-generators
 cat << EOF > ${mount_dir}/etc/systemd/system-environment-generators/20-python
 #!/bin/sh
 echo 'PYTHONDONTWRITEBYTECODE=1'
-echo 'PYTHONHISTFILE=/dev/null'
+echo 'PYTHONSTARTUP=/usr/lib/pythonstartup'
 EOF
 chmod +x ${mount_dir}/etc/systemd/system-environment-generators/20-python
 
 cat << EOF > ${mount_dir}/etc/profile.d/python.sh
 #!/bin/sh
-export PYTHONDONTWRITEBYTECODE=1 PYTHONHISTFILE=/dev/null
+export PYTHONDONTWRITEBYTECODE=1 PYTHONSTARTUP=/usr/lib/pythonstartup
+EOF
+
+cat << EOF > ${mount_dir}/usr/lib/pythonstartup
+import readline
+import time
+
+readline.add_history("# " + time.asctime())
+readline.set_history_length(-1)
+EOF
+
+mkdir -p ${mount_dir}/etc/initramfs-tools/conf.d
+cat << EOF > ${mount_dir}/etc/initramfs-tools/conf.d/custom
+COMPRESS=xz
 EOF
 
 cat << EOF > ${mount_dir}/etc/pip.conf
@@ -205,7 +325,6 @@ systemctl enable devstack@var-log-dirs.service
 
 apt remove -y --purge git git-man
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
-find /usr /opt -type f -name "*.py[co]" -prune -exec rm -rf {} + 
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! 'Etc' -a ! '*UTC' -a ! '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
 rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp
