@@ -68,7 +68,6 @@ path-exclude /usr/share/linda/*
 path-exclude /usr/share/locale/*
 path-exclude /usr/lib/locale/*
 path-include /usr/share/locale/en*
-path-exclude /usr/include/*
 #path-exclude /usr/lib/python3/dist-packages/*/tests*
 path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/CN*
 path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/JP*
