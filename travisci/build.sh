@@ -237,6 +237,7 @@ cat << EOF > ${mount_dir}/etc/systemd/system/last.target
 Description=Last Target for Last Commands
 Requires=multi-user.target
 After=multi-user.target
+Wants=devstack-install.service
 Conflicts=rescue.service rescue.target
 EOF
 
@@ -245,6 +246,8 @@ cat << EOF > ${mount_dir}/etc/systemd/system/devstack-install.service
 Description=DevStack Install Service
 ConditionPathExists=!/etc/devstack-version
 SuccessAction=poweroff-force
+After=network-online.target systemd-networkd.service
+Wants=network-online.target
 
 [Service]
 Type=oneshot
@@ -305,7 +308,7 @@ set -e
 
 ip address show
 cat /etc/resolv.conf
-nslookup www.google.com
+busybox nslookup www.google.com
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git
@@ -334,7 +337,7 @@ find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' 
 rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp
 rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/* /usr/lib/x86_64-linux-gnu/dri
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
-rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/systemd/system/last.target /etc/systemd/system/last.target.wants /etc/systemd/system/devstack-install.service
+rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
 EOF
 
 rm -f ${mount_dir}/etc/resolv.conf
@@ -364,7 +367,6 @@ echo stack:stack | chpasswd
 sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
-systemctl enable devstack-install.service systemd-networkd.service
 systemctl disable $disable_services
 
 apt update
