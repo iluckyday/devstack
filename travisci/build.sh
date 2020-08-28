@@ -247,7 +247,7 @@ Description=DevStack Install Service
 ConditionPathExists=!/etc/devstack-version
 SuccessAction=poweroff-force
 After=network-online.target systemd-networkd.service
-Wants=network-online.target
+Wants=network-online.target systemd-networkd.service
 
 [Service]
 Type=oneshot
