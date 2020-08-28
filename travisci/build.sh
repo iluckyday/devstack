@@ -303,6 +303,10 @@ cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
 set -e
 
+ip address show
+cat /etc/resolv.conf
+nslookup www.google.com
+
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git
 
