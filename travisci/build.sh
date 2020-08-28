@@ -295,9 +295,9 @@ LIBVIRT_TYPE=kvm
 #DOWNLOAD_DEFAULT_IMAGES=True
 RECLONE=yes
 FORCE=yes
-VERBOSE=False
+VERBOSE=True
 SYSLOG=True
-ENABLE_DEBUG_LOG_LEVEL=False
+ENABLE_DEBUG_LOG_LEVEL=True
 DEBUG_LIBVIRT=False
 GIT_BASE=https://github.com
 EOF
@@ -306,9 +306,9 @@ cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
 set -e
 
-ip address show
-cat /etc/resolv.conf
-busybox nslookup www.google.com
+#ip address show
+#cat /etc/resolv.conf
+#busybox nslookup www.google.com
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git
