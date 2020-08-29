@@ -88,6 +88,7 @@ path-exclude *bin/mysqldump
 path-exclude *bin/aria_dump_log
 path-exclude *bin/mysqlimport
 path-exclude *bin/pdata_tools
+path-exclude *bin/qemu-system-i386
 path-exclude /boot/System.map*
 path-exclude /lib/modules/*/fs/ocfs2*
 path-exclude /lib/modules/*/fs/nls*
@@ -202,6 +203,7 @@ cat << EOF > ${mount_dir}/etc/pip.conf
 [global]
 download-cache=/tmp
 cache-dir=/tmp
+no-cache-dir = true
 EOF
 
 cat << EOF > ${mount_dir}/etc/systemd/network/20-dhcp.network
@@ -332,7 +334,7 @@ apt remove -y --purge git git-man
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! 'Etc' -a ! '*UTC' -a ! '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
-rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp
+rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl
 rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/* /usr/lib/x86_64-linux-gnu/dri
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
