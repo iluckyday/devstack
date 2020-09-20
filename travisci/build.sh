@@ -81,13 +81,19 @@ path-exclude *bin/systemd-analyze
 path-exclude *bin/resolve_stack_dump
 path-exclude *bin/mysql_tzinfo_to_sql
 path-exclude *bin/sqldiff
+path-exclude *bin/etcdctl
 path-exclude *bin/myisamlog
 path-exclude *bin/mysqldump
 path-exclude *bin/aria_dump_log
 path-exclude *bin/mysqlimport
 path-exclude *bin/pdata_tools
-path-exclude *bin/qemu-system-i386
-path-exclude /boot/System.map*
+path-exclude *bin/aria_ftdump
+path-exclude *bin/aria_read_log
+path-exclude *bin/myisam_ftdump
+path-exclude /usr/lib/x86_64-linux-gnu/ceph*
+path-exclude /usr/lib/x86_64-linux-gnu/libicudata.a
+path-exclude /lib/modules/*/kernel/drivers/net/ethernet*
+path-exclude /usr/share/python-babel-localedata/locale-data*
 path-exclude /lib/modules/*/fs/ceph*
 path-exclude /lib/modules/*/sound*
 EOF
@@ -253,9 +259,12 @@ systemctl set-default multi-user.target
 systemctl enable devstack@var-log-dirs.service
 
 apt remove -y --purge git git-man
+dpkg -P --force-depends gcc-9 libgcc-9-dev g++-9 cpp cpp-9 iso-codes
+
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
+find /usr /opt -type d -name tests -prune -exec rm -rf {} +
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
-find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! 'Etc' -a ! '*UTC' -a ! '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
+find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'Etc' -a ! -name '*UTC' -a ! -name '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
 rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl /root/.cache /home/stack/.cache
 rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/* /usr/lib/x86_64-linux-gnu/dri
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
@@ -263,7 +272,7 @@ rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /o
 rm -rf /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
 rm -rf /usr/lib/python3/dist-packages/*/tests /var/lib/*/*.sqlite
 rm -rf /opt/stack/*/*/locale /opt/stack/*/*/tests /opt/stack/*/docs /opt/stack/*/*/docs
-rm -rf /usr/bin/systemd-analyze /usr/bin/perl5.30.3 /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/mysql /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
+rm -rf /usr/include /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/mysql /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
 EOF
 
 rm -f ${mount_dir}/etc/resolv.conf
@@ -293,6 +302,7 @@ echo stack:stack | chpasswd
 sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
+systemctl enable systemd-networkd
 systemctl disable $disable_services
 
 apt update
