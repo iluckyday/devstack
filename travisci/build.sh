@@ -237,7 +237,7 @@ set -e
 sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
 
 sudo apt update
-sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common python-software-properties
+sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common
 
 git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
