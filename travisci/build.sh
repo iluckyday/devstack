@@ -165,6 +165,7 @@ cat << EOF > ${mount_dir}/etc/systemd/system/devstack-install.service
 Description=DevStack Install Service
 ConditionPathExists=!/etc/devstack-version
 SuccessAction=poweroff-force
+FailureAction=poweroff-force
 After=network-online.target systemd-networkd.service
 Wants=network-online.target systemd-networkd.service
 
@@ -195,11 +196,6 @@ EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-local.conf
 [[local|localrc]]
-enable_plugin amqp1 https://opendev.org/openstack/devstack-plugin-amqp1
-AMQP1_USERNAME=qpid
-AMQP1_PASSWORD=devstack
-AMQP1_SERVICE=qpid-dual
-
 disable_service tempest dstat
 disable_service c-sch c-api c-vol
 disable_service horizon
