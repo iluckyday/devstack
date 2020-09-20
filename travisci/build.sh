@@ -234,7 +234,7 @@ set -e
 #cat /etc/resolv.conf
 #busybox nslookup www.google.com
 
-rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
+sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git
