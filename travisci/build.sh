@@ -68,7 +68,6 @@ path-exclude /usr/share/linda/*
 path-exclude /usr/share/locale/*
 path-exclude /usr/lib/locale/*
 path-include /usr/share/locale/en*
-#path-exclude /usr/lib/python3/dist-packages/*/tests*
 path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/CN*
 path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/JP*
 path-exclude /usr/lib/x86_64-linux-gnu/perl/5.30.3/auto/Encode/KR*
@@ -82,7 +81,6 @@ path-exclude *bin/systemd-analyze
 path-exclude *bin/resolve_stack_dump
 path-exclude *bin/mysql_tzinfo_to_sql
 path-exclude *bin/sqldiff
-path-exclude *bin/etcdctl
 path-exclude *bin/myisamlog
 path-exclude *bin/mysqldump
 path-exclude *bin/aria_dump_log
@@ -90,85 +88,7 @@ path-exclude *bin/mysqlimport
 path-exclude *bin/pdata_tools
 path-exclude *bin/qemu-system-i386
 path-exclude /boot/System.map*
-path-exclude /lib/modules/*/fs/ocfs2*
-path-exclude /lib/modules/*/fs/nls*
 path-exclude /lib/modules/*/fs/ceph*
-path-exclude /lib/modules/*/fs/jffs2*
-path-exclude /lib/modules/*/fs/orangefs*
-path-exclude /lib/modules/*/fs/ufs*
-path-exclude /lib/modules/*/net/wireless*
-path-exclude /lib/modules/*/net/mpls*
-path-exclude /lib/modules/*/net/wimax*
-path-exclude /lib/modules/*/net/l2tp*
-path-exclude /lib/modules/*/net/nfc*
-path-exclude /lib/modules/*/net/tipc*
-path-exclude /lib/modules/*/net/appletalk*
-path-exclude /lib/modules/*/net/rds*
-path-exclude /lib/modules/*/net/dccp*
-path-exclude /lib/modules/*/net/netrom*
-path-exclude /lib/modules/*/net/lapb*
-path-exclude /lib/modules/*/net/mac80211*
-path-exclude /lib/modules/*/net/6lowpan*
-path-exclude /lib/modules/*/net/rxrpc*
-path-exclude /lib/modules/*/net/atm*
-path-exclude /lib/modules/*/net/psample*
-path-exclude /lib/modules/*/net/rose*
-path-exclude /lib/modules/*/net/ax25*
-path-exclude /lib/modules/*/net/9p*
-path-exclude /lib/modules/*/net/bluetooth*
-path-exclude /lib/modules/*/net/ife*
-path-exclude /lib/modules/*/net/ceph*
-path-exclude /lib/modules/*/net/phonet*
-path-exclude /lib/modules/*/drivers/media*
-path-exclude /lib/modules/*/drivers/mfd*
-path-exclude /lib/modules/*/drivers/hid*
-path-exclude /lib/modules/*/drivers/nfc*
-path-exclude /lib/modules/*/drivers/dca*
-path-exclude /lib/modules/*/drivers/thunderbolt*
-path-exclude /lib/modules/*/drivers/firmware*
-path-exclude /lib/modules/*/drivers/xen*
-path-exclude /lib/modules/*/drivers/spi*
-path-exclude /lib/modules/*/drivers/uio*
-path-exclude /lib/modules/*/drivers/hv*
-path-exclude /lib/modules/*/drivers/ptp*
-path-exclude /lib/modules/*/drivers/pcmcia*
-path-exclude /lib/modules/*/drivers/isdn*
-path-exclude /lib/modules/*/drivers/atm*
-path-exclude /lib/modules/*/drivers/w1*
-path-exclude /lib/modules/*/drivers/hwmon*
-path-exclude /lib/modules/*/drivers/dax*
-path-exclude /lib/modules/*/drivers/parport*
-path-exclude /lib/modules/*/drivers/ssb*
-path-exclude /lib/modules/*/drivers/infiniband*
-path-exclude /lib/modules/*/drivers/gpu*
-path-exclude /lib/modules/*/drivers/bluetooth*
-path-exclude /lib/modules/*/drivers/video*
-path-exclude /lib/modules/*/drivers/android*
-path-exclude /lib/modules/*/drivers/nvme*
-path-exclude /lib/modules/*/drivers/gnss*
-path-exclude /lib/modules/*/drivers/firewire*
-path-exclude /lib/modules/*/drivers/leds*
-path-exclude /lib/modules/*/drivers/net/fddi*
-path-exclude /lib/modules/*/drivers/net/hyperv*
-path-exclude /lib/modules/*/drivers/net/xen-netback*
-path-exclude /lib/modules/*/drivers/net/wireless*
-path-exclude /lib/modules/*/drivers/net/ipvlan*
-path-exclude /lib/modules/*/drivers/net/slip*
-path-exclude /lib/modules/*/drivers/net/usb*
-path-exclude /lib/modules/*/drivers/net/team*
-path-exclude /lib/modules/*/drivers/net/ppp*
-path-exclude /lib/modules/*/drivers/net/can*
-path-exclude /lib/modules/*/drivers/net/phy*
-path-exclude /lib/modules/*/drivers/net/vmxnet3*
-path-exclude /lib/modules/*/drivers/net/ieee802154*
-path-exclude /lib/modules/*/drivers/net/fjes*
-path-exclude /lib/modules/*/drivers/net/hippi*
-path-exclude /lib/modules/*/drivers/net/wan*
-path-exclude /lib/modules/*/drivers/net/plip*
-path-exclude /lib/modules/*/drivers/net/appletalk*
-path-exclude /lib/modules/*/drivers/net/wimax*
-path-exclude /lib/modules/*/drivers/net/arcnet*
-path-exclude /lib/modules/*/drivers/net/hamradio*
 path-exclude /lib/modules/*/sound*
 EOF
 
@@ -314,6 +234,8 @@ set -e
 #cat /etc/resolv.conf
 #busybox nslookup www.google.com
 
+rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
+
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git
 
@@ -341,7 +263,11 @@ find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' 
 rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl /root/.cache /home/stack/.cache
 rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/* /usr/lib/x86_64-linux-gnu/dri
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
-rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/{glance,horizon,keystone,neutron,nova,placement}/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
+rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/*/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts
+rm -rf /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
+rm -rf /usr/lib/python3/dist-packages/*/tests /var/lib/*/*.sqlite
+rm -rf /opt/stack/*/*/locale /opt/stack/*/*/tests /opt/stack/*/docs /opt/stack/*/*/docs
+rm -rf /usr/bin/systemd-analyze /usr/bin/perl5.30.3 /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/mysql /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
 EOF
 
 rm -f ${mount_dir}/etc/resolv.conf
