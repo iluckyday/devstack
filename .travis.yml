@@ -12,4 +12,4 @@ script:
   - sudo /bin/bash travisci/build.sh
 
 after_success:
-  - /bin/bash ffsend.sh
+  - /bin/bash transfer.sh

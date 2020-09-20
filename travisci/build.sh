@@ -237,7 +237,7 @@ set -e
 sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
 
 sudo apt update
-sudo DEBIAN_FRONTEND=noninteractive apt install -y git
+sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common python-software-properties
 
 git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
@@ -322,11 +322,11 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-echo "travis:travis" | sudo chpasswd
-curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-unzip -d /tmp /tmp/ngrok.zip
-chmod +x /tmp/ngrok
-/tmp/ngrok authtoken $NGROK_TOKEN
+# echo "travis:travis" | sudo chpasswd
+# curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+# unzip -d /tmp /tmp/ngrok.zip
+# chmod +x /tmp/ngrok
+# /tmp/ngrok authtoken $NGROK_TOKEN
 # /tmp/ngrok tcp 22 --log stdout --log-level debug
 
 #qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm -cpu host -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
