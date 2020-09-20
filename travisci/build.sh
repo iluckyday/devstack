@@ -171,7 +171,7 @@ cat << EOF > ${mount_dir}/etc/systemd/system/devstack-install.service
 Description=DevStack Install Service
 ConditionPathExists=!/etc/devstack-version
 SuccessAction=poweroff-force
-FailureAction=poweroff-force
+#FailureAction=poweroff-force
 After=network-online.target systemd-networkd.service
 Wants=network-online.target systemd-networkd.service
 
