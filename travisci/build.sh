@@ -253,6 +253,9 @@ EOF
 
 cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
+
+cat /etc/senlin/*
+
 rm -rf /etc/resolv.conf
 echo 'nameserver 1.1.1.1' > /etc/resolv.conf
 
