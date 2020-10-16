@@ -356,6 +356,5 @@ qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack.img
 
 echo "Compressed image size:"
 du -h /dev/shm/devstack.img
-# /tmp/ngrok tcp 22 --log stdout --log-level debug
 
 exit 0
