@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+ngrok_run() {
+echo "travis:travis" | sudo chpasswd
+curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+unzip -d /tmp /tmp/ngrok.zip
+chmod +x /tmp/ngrok
+/tmp/ngrok authtoken $NGROK_TOKEN
+/tmp/ngrok tcp 22 --log stdout --log-level debug
+}
+
 DEVSTACK_BRANCH=master
 #DEVSTACK_BRANCH=stable/ussuri
 UBUNTU_RELEASE=focal
@@ -341,15 +350,10 @@ sleep 1
 sync
 sleep 1
 
-#echo "travis:travis" | sudo chpasswd
-#curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-#unzip -d /tmp /tmp/ngrok.zip
-#chmod +x /tmp/ngrok
-#/tmp/ngrok authtoken $NGROK_TOKEN
-#/tmp/ngrok tcp 22 --log stdout --log-level debug
-
 echo "Original image size:"
 du -h /tmp/devstack.raw
+
+ngrok_run
 
 echo Converting ...
 qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack.img
