@@ -351,7 +351,7 @@ sleep 1
 echo "Original image size:"
 du -h /tmp/devstack.raw
 
-ngrok_run
+#ngrok_run
 
 echo Converting ...
 qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack.img
