@@ -213,10 +213,10 @@ cat << EOF > ${mount_dir}/home/stack/.devstack-local.conf
 [[local|localrc]]
 # enable_plugin senlin https://opendev.org/openstack/senlin
 
-enable_plugin networking-ovs-dpdk https://opendev.org/x/networking-ovs-dpdk
-OVS_DPDK_MODE=controller_ovs_dpdk
-OVS_NUM_HUGEPAGES=200
-OVS_DATAPATH_TYPE=netdev
+# enable_plugin networking-ovs-dpdk https://opendev.org/x/networking-ovs-dpdk
+# OVS_DPDK_MODE=controller_ovs_dpdk
+# OVS_NUM_HUGEPAGES=200
+# OVS_DATAPATH_TYPE=netdev
 
 disable_service tempest dstat
 disable_service c-sch c-api c-vol
