@@ -345,7 +345,7 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-cat /proc/cpu
+cat /proc/cpuinfo
 modprobe kvm
 lsmod
 
