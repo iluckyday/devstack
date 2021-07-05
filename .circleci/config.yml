@@ -1,0 +1,29 @@
+version: 2.1
+
+jobs:
+  build:
+    machine:
+      image: ubuntu-2004:202104-01
+    steps:
+      - checkout
+      - run:
+          name: "Build DevStack Image"
+          command: |
+            sudo rm -rf /etc/apt/sources.list.d
+            sudo sed -i '/src/d' /etc/apt/sources.list
+            sudo apt-get update
+            sudo apt-get -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 -y install qemu-system-x86 qemu-utils debootstrap
+            sudo /bin/bash travisci/build.sh
+            /bin/bash transfer.sh
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 0"
+    jobs:
+      - build
