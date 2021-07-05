@@ -1,0 +1,21 @@
+name: Build DevStack Image
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Build devstack.img
+        run: sudo /bin/bash githubci/build.v2.sh
+
+      - name: Push
+        run: /bin/bash tansfer.sh
+        env:
+          WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
+          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
