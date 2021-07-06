@@ -4,12 +4,14 @@ on:
   push:
     branches:
     - master
+  schedule:
+    - cron:  "0 0 * * 0"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       - name: Build devstack.img
         run: sudo /bin/bash githubci/build.v2.sh
