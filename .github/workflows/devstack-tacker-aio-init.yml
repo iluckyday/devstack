@@ -16,6 +16,9 @@ jobs:
       - name: Build devstack-tacker-aio-init.img
         run: sudo /bin/bash githubci/build-tacker-aio-init.sh
 
+      - name: ls
+        run: ls -la
+
       - name: Push
         run: /bin/bash tansfer.sh /dev/shm/devstack-tacker-aio-init.img
         env:
