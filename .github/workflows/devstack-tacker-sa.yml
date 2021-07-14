@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build devstack-tacker-as.img
+      - name: Build devstack-tacker-sa.img
         run: sudo /bin/bash githubci/build-tacker-sa.sh
 
       - name: Push

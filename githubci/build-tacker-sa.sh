@@ -204,7 +204,7 @@ export OS_USER_DOMAIN_ID=default
 export OS_PROJECT_DOMAIN_ID=default
 EOF
 
-cat << EOF > ${mount_dir}/home/stack/.devstack-local.conf
+cat << "EOF" > ${mount_dir}/home/stack/.devstack-local.conf
 [[local|localrc]]
 HOST_IP=10.0.2.15
 SERVICE_HOST=10.0.2.15
