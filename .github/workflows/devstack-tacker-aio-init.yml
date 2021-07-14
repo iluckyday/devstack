@@ -1,0 +1,23 @@
+name: Build DevStack Tacker AllInOne Init Image
+
+on:
+  push:
+    branches:
+    - master
+  schedule:
+    - cron:  "0 0 * * 0"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build devstack-tacker-aio-init.img
+        run: sudo /bin/bash githubci/build-tacker-aio-init.sh
+
+      - name: Push
+        run: /bin/bash tansfer.sh /dev/shm/devstack-tacker-aio-init.img
+        env:
+          WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
+          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
