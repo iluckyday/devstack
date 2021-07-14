@@ -17,7 +17,7 @@ jobs:
         run: sudo /bin/bash githubci/build-tacker-as.sh
 
       - name: Push
-        run: /bin/bash tansfer.sh /dev/shm/devstack-tacker-as.img
+        run: /bin/bash transfer.sh /dev/shm/devstack-tacker-as.img
         env:
           WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
