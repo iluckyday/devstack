@@ -14,10 +14,10 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build devstack-tacker-as.img
-        run: sudo /bin/bash githubci/build-tacker-as.sh
+        run: sudo /bin/bash githubci/build-tacker-sa.sh
 
       - name: Push
-        run: /bin/bash transfer.sh /dev/shm/devstack-tacker-as.img
+        run: /bin/bash transfer.sh /dev/shm/devstack-tacker-sa.img
         env:
           WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
