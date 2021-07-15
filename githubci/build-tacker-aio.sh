@@ -210,41 +210,66 @@ export OS_USER_DOMAIN_ID=default
 export OS_PROJECT_DOMAIN_ID=default
 EOF
 
-cat << "EOF" > ${mount_dir}/home/stack/.devstack-local.conf
+cat << EOF > ${mount_dir}/home/stack/.devstack-local.conf
 [[local|localrc]]
-HOST_IP=10.0.2.15
-SERVICE_HOST=10.0.2.15
-SERVICE_TOKEN=devstack
 ADMIN_PASSWORD=devstack
 DATABASE_PASSWORD=devstack
 SERVICE_PASSWORD=devstack
 RABBIT_PASSWORD=devstack
-ENABLE_HTTPD_MOD_WSGI_SERVICES=True
-KEYSTONE_USE_MOD_WSGI=True
 PIP_UPGRADE=True
 USE_PYTHON3=True
 ENABLE_IDENTITY_V2=False
 IP_VERSION=4
 GIT_DEPTH=1
 SERVICE_IP_VERSION=4
+HOST_IP=10.0.2.15
 MYSQL_SERVICE_NAME=mariadb
+LIBVIRT_TYPE=kvm
+DOWNLOAD_DEFAULT_IMAGES=False
 RECLONE=yes
 FORCE=yes
 VERBOSE=True
 SYSLOG=True
-SERVICE_TIMEOUT=600
-
 ENABLE_DEBUG_LOG_LEVEL=True
-ENABLE_VERBOSE_LOG_LEVEL=True
+DEBUG_LIBVIRT=False
 
-GIT_BASE=${GIT_BASE:-https://opendev.org}
+# Neutron ML2 with OpenVSwitch
+Q_PLUGIN=ml2
+Q_AGENT=openvswitch
 
-TACKER_MODE=standalone
-USE_BARBICAN=True
-enable_plugin networking-sfc ${GIT_BASE}/openstack/networking-sfc
-enable_plugin barbican ${GIT_BASE}/openstack/barbican
-enable_plugin mistral ${GIT_BASE}/openstack/mistral
-enable_plugin tacker ${GIT_BASE}/openstack/tacker
+# Disable security groups
+Q_USE_SECGROUP=False
+LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
+
+# Enable heat, networking-sfc, barbican and mistral
+enable_plugin heat https://opendev.org/openstack/heat master
+enable_plugin networking-sfc https://opendev.org/openstack/networking-sfc master
+enable_plugin barbican https://opendev.org/openstack/barbican master
+enable_plugin mistral https://opendev.org/openstack/mistral master
+
+# Ceilometer
+#CEILOMETER_PIPELINE_INTERVAL=300
+CEILOMETER_EVENT_ALARM=True
+enable_plugin ceilometer https://opendev.org/openstack/ceilometer master
+enable_plugin aodh https://opendev.org/openstack/aodh master
+
+# Blazar
+enable_plugin blazar https://github.com/openstack/blazar.git master
+
+# Fenix
+enable_plugin fenix https://opendev.org/x/fenix.git master
+
+# Tacker
+enable_plugin tacker https://opendev.org/openstack/tacker master
+
+enable_service n-novnc
+enable_service n-cauth
+
+disable_service tempest
+
+[[post-config|/etc/neutron/dhcp_agent.ini]]
+[DEFAULT]
+enable_isolated_metadata = True
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
@@ -298,7 +323,7 @@ EOF
 rm -f ${mount_dir}/etc/resolv.conf
 echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf
 echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf.ORIG
-echo tacker > ${mount_dir}/etc/hostname
+echo devstack > ${mount_dir}/etc/hostname
 echo 127.0.0.1 localhost devstack >> ${mount_dir}/etc/hosts
 
 mkdir -p ${mount_dir}/boot/syslinux
@@ -359,9 +384,9 @@ echo "Original image size:"
 du -h /tmp/devstack.raw
 
 echo Converting ...
-qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack-tacker-sa.img
+qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack-tacker-aio.img
 
 echo "Compressed image size:"
-du -h /dev/shm/devstack-tacker-sa.img
+du -h /dev/shm/devstack-tacker-aio.img
 
 exit 0
