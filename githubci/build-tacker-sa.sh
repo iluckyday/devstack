@@ -324,7 +324,6 @@ ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
 systemctl enable systemd-networkd
 systemctl disable $disable_services
-systemctl -f mask pmlogger.service
 
 apt update
 apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-kvm extlinux initramfs-tools
@@ -349,7 +348,14 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:2022-:22 -device virtio-net,netdev=n0
+
+echo "runner:runner" | sudo chpasswd
+curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+unzip -d /tmp /tmp/ngrok.zip
+chmod +x /tmp/ngrok
+/tmp/ngrok authtoken ${{ secrets.NGROK_TOKEN }}
+/tmp/ngrok tcp 22
 
 sleep 1
 sync
