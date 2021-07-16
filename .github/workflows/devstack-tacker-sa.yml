@@ -15,10 +15,11 @@ jobs:
 
       - name: Build devstack-tacker-sa.img
         run: sudo /bin/bash githubci/build-tacker-sa.sh
+        env:
+          NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
 
       - name: Push
         run: /bin/bash transfer.sh /dev/shm/devstack-tacker-sa.img
         env:
           WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
-          NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
