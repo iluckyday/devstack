@@ -193,7 +193,7 @@ EOF
 mkdir -p ${mount_dir}/etc/systemd/system/pmlogger.service.d
 cat << EOF > ${mount_dir}/etc/systemd/system/pmlogger.service.d/timeout.conf
 [Service]
-TimeoutSec=6000
+TimeoutSec=1200
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.adminrc
