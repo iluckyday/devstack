@@ -4,8 +4,8 @@ DEVSTACK_BRANCH=master
 
 CLOUD_IMAGES_URL=http://cloud-images.ubuntu.com
 CLOUD_IMAGES_PAGE=$(curl -skL ${CLOUD_IMAGES_URL})
-LTS_LATEST_VERSION=$(echo ${CLOUD_IMAGES_PAGE} | grep -oP "Server \K(.*) (?=LTS)" | sort -r | head -n 1)
-LTS_LATEST_NAME=$(echo ${CLOUD_IMAGES_PAGE} | grep "${LTS_LATEST_VERSION}" | grep -oP "LTS \(\K([a-zA-Z]*)" | tr [:upper:] [:lower:])
+LTS_LATEST_VERSION=$(echo "${CLOUD_IMAGES_PAGE}" | grep -oP "Server \K(.*) (?=LTS)" | sort -r | head -n 1)
+LTS_LATEST_NAME=$(echo "${CLOUD_IMAGES_PAGE}" | grep "${LTS_LATEST_VERSION}" | grep -oP "LTS \(\K([a-zA-Z]*)" | tr [:upper:] [:lower:])
 URL=${CLOUD_IMAGES_URL}/${LTS_LATEST_NAME}/current/${LTS_LATEST_NAME}-server-cloudimg-amd64.img
 
 DEST=/dev/shm/devstack-vm.img
@@ -15,7 +15,7 @@ echo Install QEMU
 rm -rf /etc/apt/sources.list.d
 sed -i '/src/d' /etc/apt/sources.list
 apt-get update
-apt-get -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 -y install qemu-system-x86 genisoimage
+apt-get -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 -y install qemu-system-x86 qemu-utils genisoimage
 
 echo Get Cloud Image
 echo URL: $URL
