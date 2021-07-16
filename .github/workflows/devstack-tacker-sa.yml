@@ -21,3 +21,4 @@ jobs:
         env:
           WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
+          NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}

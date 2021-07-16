@@ -354,7 +354,7 @@ echo "runner:runner" | sudo chpasswd
 curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
 unzip -d /tmp /tmp/ngrok.zip
 chmod +x /tmp/ngrok
-/tmp/ngrok authtoken ${{ secrets.NGROK_TOKEN }}
+/tmp/ngrok authtoken ${NGROK_TOKEN}
 /tmp/ngrok tcp 22
 
 sleep 1
