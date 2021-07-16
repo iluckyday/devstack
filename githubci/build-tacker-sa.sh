@@ -324,6 +324,7 @@ ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 systemctl set-default last.target
 systemctl enable systemd-networkd
 systemctl disable $disable_services
+systemctl -f mask pmlogger.service
 
 apt update
 apt install -y -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 linux-image-kvm extlinux initramfs-tools
