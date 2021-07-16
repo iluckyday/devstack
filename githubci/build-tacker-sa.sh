@@ -182,7 +182,7 @@ Wants=network-online.target systemd-networkd.service
 [Service]
 Type=oneshot
 User=stack
-StandardOutput=journal+console
+#StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -299,7 +299,7 @@ rm -f ${mount_dir}/etc/resolv.conf
 echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf
 echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf.ORIG
 echo tacker > ${mount_dir}/etc/hostname
-echo 127.0.0.1 localhost devstack >> ${mount_dir}/etc/hosts
+echo 127.0.0.1 localhost devstack tacker >> ${mount_dir}/etc/hosts
 
 mkdir -p ${mount_dir}/boot/syslinux
 cat << EOF > ${mount_dir}/boot/syslinux/syslinux.cfg
@@ -348,14 +348,15 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:2022-:22 -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:2022-:22 -device virtio-net,netdev=n0
+#qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:2022-:22 -device virtio-net,netdev=n0
 
-echo "runner:runner" | sudo chpasswd
-curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-unzip -d /tmp /tmp/ngrok.zip
-chmod +x /tmp/ngrok
-/tmp/ngrok authtoken ${NGROK_TOKEN}
-/tmp/ngrok tcp 22
+#echo "runner:runner" | sudo chpasswd
+#curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+#unzip -d /tmp /tmp/ngrok.zip
+#chmod +x /tmp/ngrok
+#/tmp/ngrok authtoken ${NGROK_TOKEN}
+#/tmp/ngrok tcp 22
 
 sleep 1
 sync
