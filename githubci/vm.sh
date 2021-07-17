@@ -153,6 +153,10 @@ write_files:
          Storage=volatile
     path: /etc/systemd/journald.conf.d/storage.conf
   - content: |
+         [Service]
+         TimeoutSec=1200
+    path: /etc/systemd/system/pmlogger.service.d/timeout.conf
+  - content: |
          export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null PYTHONWARNINGS=ignore
     owner: stack:stack
     path: /home/stack/.bash.conf
@@ -205,6 +209,7 @@ runcmd:
   - grub-mkconfig -o /boot/grub/grub.cfg
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - su -l stack ./start.sh
+  - cat /var/log/pcp/pmlogger/pmlogger_check.log
   - rm -rf /var/lib/apt/lists /var/cache/apt /tmp/*
   - find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
   - rm -rf /home/stack/devstack
