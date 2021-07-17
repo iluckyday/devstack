@@ -218,7 +218,7 @@ EOF
 genisoimage -quiet -output cloudinit.iso -volid cidata -joliet -rock user-data meta-data &>/dev/null
 
 echo Building ...
-qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -boot c -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -drive file=devstack0.img,if=virtio,format=qcow2,media=disk -drive file=cloudinit.iso,if=virtio,media=cdrom -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0 -display none
+qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -boot c -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -drive file=devstack0.img,if=virtio,format=qcow2,media=disk -drive file=cloudinit.iso,if=virtio,media=cdrom -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0 -nographic
 
 echo Original image size:
 du -h devstack0.img
