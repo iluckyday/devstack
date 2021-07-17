@@ -102,7 +102,7 @@ write_files:
         echo 'PYTHONDONTWRITEBYTECODE=1'
         echo 'PYTHONSTARTUP=/usr/lib/pythonstartup'
     path: /etc/systemd/system-environment-generators/20-python
-	mode: 0755
+    permissions: 0755
   - content: |
         import readline
         import time
