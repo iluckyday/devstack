@@ -46,6 +46,9 @@ apt:
 
 timezone: Asia/Chongqing
 
+output:
+  all: '| tee -a /dev/console'
+
 write_files:
   - content: |
         LABEL=cloudimg-rootfs   /               ext4    defaults,noatime                                     0 0
