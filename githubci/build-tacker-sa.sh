@@ -191,9 +191,10 @@ WantedBy=last.target
 EOF
 
 mkdir -p ${mount_dir}/etc/systemd/system/pmlogger.service.d
-cat << EOF > ${mount_dir}/etc/systemd/system/pmlogger.service.d/timeout.conf
+cat << EOF > ${mount_dir}/etc/systemd/system/pmlogger.service.d/opt.conf
 [Service]
 TimeoutSec=600
+PIDFile=
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.adminrc

@@ -154,8 +154,9 @@ write_files:
     path: /etc/systemd/journald.conf.d/storage.conf
   - content: |
          [Service]
-         TimeoutSec=1200
-    path: /etc/systemd/system/pmlogger.service.d/timeout.conf
+         TimeoutSec=600
+         PIDFile=
+    path: /etc/systemd/system/pmlogger.service.d/opt.conf
   - content: |
          export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null PYTHONWARNINGS=ignore
     owner: stack:stack
