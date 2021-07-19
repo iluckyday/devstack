@@ -194,6 +194,7 @@ write_files:
         echo SERVICE_IP_VERSION=4 >> local.conf
         echo HOST_IP=10.0.2.15 >> local.conf
         echo LIBVIRT_TYPE=kvm >> local.conf
+        echo SERVICE_TIMEOUT=600 >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     permissions: 0755
@@ -210,7 +211,6 @@ runcmd:
   - grub-mkconfig -o /boot/grub/grub.cfg
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - su -l stack ./start.sh
-  - cat /var/log/pcp/pmlogger/pmlogger_check.log
   - rm -rf /var/lib/apt/lists /var/cache/apt /tmp/*
   - find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
   - rm -rf /home/stack/devstack

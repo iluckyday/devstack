@@ -191,9 +191,10 @@ WantedBy=last.target
 EOF
 
 mkdir -p ${mount_dir}/etc/systemd/system/pmlogger.service.d
-cat << EOF > ${mount_dir}/etc/systemd/system/pmlogger.service.d/timeout.conf
+cat << EOF > ${mount_dir}/etc/systemd/system/pmlogger.service.d/opt.conf
 [Service]
-TimeoutSec=6000
+TimeoutSec=600
+PIDFile=
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.adminrc
@@ -232,6 +233,7 @@ VERBOSE=True
 SYSLOG=True
 ENABLE_DEBUG_LOG_LEVEL=True
 DEBUG_LIBVIRT=False
+SERVICE_TIMEOUT=600
 
 # Neutron ML2 with OpenVSwitch
 Q_PLUGIN=ml2

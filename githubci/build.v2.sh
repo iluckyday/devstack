@@ -237,7 +237,6 @@ SYSLOG=True
 ENABLE_DEBUG_LOG_LEVEL=True
 DEBUG_LIBVIRT=False
 SERVICE_TIMEOUT=600
-GIT_BASE=https://github.com
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
