@@ -193,7 +193,7 @@ EOF
 mkdir -p ${mount_dir}/etc/systemd/system/pmlogger.service.d
 cat << EOF > ${mount_dir}/etc/systemd/system/pmlogger.service.d/timeout.conf
 [Service]
-TimeoutSec=1200
+TimeoutSec=600
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.adminrc
@@ -348,15 +348,15 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
+echo "runner:runner" | sudo chpasswd
+curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+unzip -d /tmp /tmp/ngrok.zip
+chmod +x /tmp/ngrok
+/tmp/ngrok authtoken ${NGROK_TOKEN}
+/tmp/ngrok tcp 22 -log stdout &
+
 qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:2022-:22 -device virtio-net,netdev=n0
 #qemu-system-x86_64 -name devstack-building -daemonize -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:2022-:22 -device virtio-net,netdev=n0
-
-#echo "runner:runner" | sudo chpasswd
-#curl -skL -o /tmp/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-#unzip -d /tmp /tmp/ngrok.zip
-#chmod +x /tmp/ngrok
-#/tmp/ngrok authtoken ${NGROK_TOKEN}
-#/tmp/ngrok tcp 22
 
 sleep 1
 sync
