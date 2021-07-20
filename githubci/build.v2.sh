@@ -35,6 +35,7 @@ debootstrap --no-check-gpg --no-check-certificate --components=main,universe,res
 
 mount -t proc none ${mount_dir}/proc
 mount -o bind /sys ${mount_dir}/sys
+mount -o bind /pts ${mount_dir}/pts
 mount -o bind /dev ${mount_dir}/dev
 
 chroot ${mount_dir} useradd -s /bin/bash -m -G adm stack
@@ -237,6 +238,7 @@ SYSLOG=True
 ENABLE_DEBUG_LOG_LEVEL=True
 DEBUG_LIBVIRT=False
 SERVICE_TIMEOUT=600
+GIT_BASE=https://github.com
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
@@ -334,16 +336,14 @@ chmod 600 home/stack/.ssh/authorized_keys
 "
 
 sync ${mount_dir}
-umount ${mount_dir}/dev ${mount_dir}/proc ${mount_dir}/sys
+sleep 1
+umount ${mount_dir}/dev ${mount_dir}/proc ${mount_dir}/pts ${mount_dir}/sys
 sleep 1
 umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-echo "CPU info:"
-cat /proc/cpuinfo
-
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 5G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 sleep 1
 sync

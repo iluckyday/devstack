@@ -208,7 +208,6 @@ bootcmd:
 
 runcmd:
   - touch /etc/cloud/cloud-init.disabled
-  - grub-mkconfig -o /boot/grub/grub.cfg
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - su -l stack ./start.sh
   - rm -rf /var/lib/apt/lists /var/cache/apt /tmp/*
