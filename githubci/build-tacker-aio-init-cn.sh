@@ -243,12 +243,12 @@ SPICE_REPO=http://git.trystack.cn/git/spice/spice-html5.git
 ETCD_DOWNLOAD_URL=https://mirrors.huaweicloud.com/etcd
 
 # Neutron ML2 with OpenVSwitch
-Q_PLUGIN=ml2
-Q_AGENT=openvswitch
+#Q_PLUGIN=ml2
+#Q_AGENT=openvswitch
 
 # Disable security groups
-Q_USE_SECGROUP=False
-LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
+#Q_USE_SECGROUP=False
+#LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
 
 # Enable heat, networking-sfc, barbican and mistral
 enable_plugin heat https://opendev.org/openstack/heat master
@@ -256,7 +256,7 @@ enable_plugin networking-sfc https://opendev.org/openstack/networking-sfc master
 enable_plugin barbican https://opendev.org/openstack/barbican master
 enable_plugin mistral https://opendev.org/openstack/mistral master
 
-#CEILOMETER_PIPELINE_INTERVAL=300
+CEILOMETER_PIPELINE_INTERVAL=300
 CEILOMETER_EVENT_ALARM=True
 enable_plugin ceilometer https://opendev.org/openstack/ceilometer master
 enable_plugin aodh https://opendev.org/openstack/aodh master
