@@ -137,9 +137,9 @@ cat << EOF > ${mount_dir}/etc/pip.conf
 download-cache=/tmp
 cache-dir=/tmp
 no-cache-dir = true
-index-url = http://pypi.douban.com/simple/
+index-url = https://pypi.douban.com/simple/
 [install]
-trusted-host = http://pypi.douban.com
+trusted-host = https://pypi.douban.com
 EOF
 
 cat << EOF > ${mount_dir}/etc/systemd/network/20-dhcp.network
@@ -189,7 +189,7 @@ Wants=network-online.target systemd-networkd.service
 [Service]
 Type=oneshot
 User=stack
-StandardOutput=journal+console
+#StandardOutput=journal+console
 ExecStart=/bin/bash /home/stack/.devstack-install.sh
 ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 
@@ -236,7 +236,7 @@ ENABLE_DEBUG_LOG_LEVEL=True
 DEBUG_LIBVIRT=False
 
 # for CN
-GIT_BASE=http://git.trystack.cn
+#GIT_BASE=http://git.trystack.cn
 NOVNC_REPO=http://git.trystack.cn/kanaka/noVNC.git
 SPICE_REPO=http://git.trystack.cn/git/spice/spice-html5.git
 ETCD_DOWNLOAD_URL=https://mirrors.huaweicloud.com/etcd
