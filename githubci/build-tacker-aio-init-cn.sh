@@ -137,9 +137,9 @@ cat << EOF > ${mount_dir}/etc/pip.conf
 download-cache=/tmp
 cache-dir=/tmp
 no-cache-dir = true
-index-url = https://pypi.douban.com/simple/
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
 [install]
-trusted-host = https://pypi.douban.com
+trusted-host = https://pypi.tuna.tsinghua.edu.cn
 EOF
 
 cat << EOF > ${mount_dir}/etc/systemd/network/20-dhcp.network
@@ -164,8 +164,6 @@ After=var-log.mount
 Type=oneshot
 ExecStart=/bin/bash -c "mkdir /var/log/{rabbitmq,apache2};chown rabbitmq:rabbitmq /var/log/rabbitmq"
 RemainAfterExit=yes
-[Install]
-WantedBy=local-fs.target
 EOF
 
 cat << EOF > ${mount_dir}/etc/systemd/system/last.target
@@ -173,7 +171,7 @@ cat << EOF > ${mount_dir}/etc/systemd/system/last.target
 Description=Last Target for Last Commands
 Requires=multi-user.target
 After=multi-user.target
-Wants=devstack-install.service
+Wants=devstack-install.service devstack@var-log-dirs.service
 Conflicts=rescue.service rescue.target
 EOF
 
@@ -211,30 +209,22 @@ export OS_USER_DOMAIN_ID=default
 export OS_PROJECT_DOMAIN_ID=default
 EOF
 
-cat << EOF > ${mount_dir}/home/stack/.devstack-local.conf
+cat << "EOF" > ${mount_dir}/home/stack/.devstack-local.conf
 [[local|localrc]]
 ADMIN_PASSWORD=devstack
 DATABASE_PASSWORD=devstack
 SERVICE_PASSWORD=devstack
 RABBIT_PASSWORD=devstack
-PIP_UPGRADE=True
 USE_PYTHON3=True
-ENABLE_IDENTITY_V2=False
 IP_VERSION=4
 GIT_DEPTH=1
 SERVICE_IP_VERSION=4
-HOST_IP=10.0.2.15
-MYSQL_SERVICE_NAME=mariadb
-LIBVIRT_TYPE=kvm
-DOWNLOAD_DEFAULT_IMAGES=False
-NEUTRON_CREATE_INITIAL_NETWORKS=False
+HOST_IP=127.0.0.1
 RECLONE=yes
 FORCE=yes
 VERBOSE=True
 SYSLOG=True
 ENABLE_DEBUG_LOG_LEVEL=True
-DEBUG_LIBVIRT=False
-SERVICE_TIMEOUT=600
 
 # for CN
 #GIT_BASE=http://git.trystack.cn
@@ -242,37 +232,17 @@ NOVNC_REPO=http://git.trystack.cn/kanaka/noVNC.git
 SPICE_REPO=http://git.trystack.cn/git/spice/spice-html5.git
 ETCD_DOWNLOAD_URL=https://mirrors.huaweicloud.com/etcd
 
-# Neutron ML2 with OpenVSwitch
-#Q_PLUGIN=ml2
-#Q_AGENT=openvswitch
+ENABLE_HTTPD_MOD_WSGI_SERVICES=True
+KEYSTONE_USE_MOD_WSGI=True
 
-# Disable security groups
-#Q_USE_SECGROUP=False
-#LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
+GIT_BASE=${GIT_BASE:-https://opendev.org}
 
-# Enable heat, networking-sfc, barbican and mistral
-enable_plugin heat https://opendev.org/openstack/heat master
-enable_plugin networking-sfc https://opendev.org/openstack/networking-sfc master
-enable_plugin barbican https://opendev.org/openstack/barbican master
-enable_plugin mistral https://opendev.org/openstack/mistral master
-
-CEILOMETER_PIPELINE_INTERVAL=300
-CEILOMETER_EVENT_ALARM=True
-enable_plugin ceilometer https://opendev.org/openstack/ceilometer master
-enable_plugin aodh https://opendev.org/openstack/aodh master
-
-enable_plugin blazar https://github.com/openstack/blazar.git master
-enable_plugin fenix https://opendev.org/x/fenix.git master
-enable_plugin tacker https://opendev.org/openstack/tacker master
-
-enable_service n-novnc
-enable_service n-cauth
-
-disable_service tempest
-
-[[post-config|/etc/neutron/dhcp_agent.ini]]
-[DEFAULT]
-enable_isolated_metadata = True
+TACKER_MODE=standalone
+USE_BARBICAN=True
+enable_plugin networking-sfc ${GIT_BASE}/openstack/networking-sfc
+enable_plugin barbican ${GIT_BASE}/openstack/barbican
+enable_plugin mistral ${GIT_BASE}/openstack/mistral
+enable_plugin tacker ${GIT_BASE}/openstack/tacker
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
@@ -300,7 +270,6 @@ rm -rf /etc/resolv.conf
 echo 'nameserver 1.1.1.1' > /etc/resolv.conf
 
 systemctl set-default multi-user.target
-systemctl enable devstack@var-log-dirs.service
 
 apt remove -y --purge git git-man
 dpkg -P --force-depends iso-codes gcc-9 libgcc-9-dev g++-9 cpp cpp-9 gcc-10 libgcc-10-dev cpp-10
@@ -345,6 +314,8 @@ sed -i 's/root:\*:/root::/' etc/shadow
 echo stack:stack | chpasswd
 sed -i '/src/d' /etc/apt/sources.list
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+chown stack.stack /home/stack/.adminrc /home/stack/.devstack-local.conf /home/stack/.devstack-install.sh /home/stack/.devstack-install-post.sh
+
 systemctl set-default last.target
 systemctl enable systemd-networkd
 systemctl disable $disable_services
@@ -355,6 +326,10 @@ dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
 rm -rf /var/log/* /tmp/* /var/tmp/*
 "
+
+cat << EOF > ${mount_dir}/etc/default/locale
+LANG="en_US.UTF-8"
+EOF
 
 cat << EOF > ${mount_dir}/etc/apt/sources.list
 deb https://mirrors.ustc.edu.cn/ubuntu/ ${LTS_LATEST_NAME} main restricted universe multiverse
