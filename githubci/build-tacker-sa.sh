@@ -12,7 +12,7 @@ UBUNTU_RELEASE=focal
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
 
-base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,ca-certificates,busybox"
+base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,ca-certificates,busybox,netbase"
 exclude_apps="ifupdown,unattended-upgrades"
 disable_services="e2scrub_reap.service \
 systemd-timesyncd.service \
@@ -228,7 +228,6 @@ ENABLE_IDENTITY_V2=False
 IP_VERSION=4
 GIT_DEPTH=1
 SERVICE_IP_VERSION=4
-MYSQL_SERVICE_NAME=mariadb
 RECLONE=yes
 FORCE=yes
 VERBOSE=True
@@ -239,6 +238,10 @@ ENABLE_DEBUG_LOG_LEVEL=True
 ENABLE_VERBOSE_LOG_LEVEL=True
 
 GIT_BASE=${GIT_BASE:-https://opendev.org}
+
+disable_all_services
+enable_service rabbit mysql etcd3 key
+MYSQL_SERVICE_NAME=mariadb
 
 TACKER_MODE=standalone
 USE_BARBICAN=True
