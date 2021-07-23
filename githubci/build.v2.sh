@@ -35,7 +35,6 @@ debootstrap --no-check-gpg --no-check-certificate --components=main,universe,res
 
 mount -t proc none ${mount_dir}/proc
 mount -o bind /sys ${mount_dir}/sys
-mount -o bind /pts ${mount_dir}/pts
 mount -o bind /dev ${mount_dir}/dev
 
 chroot ${mount_dir} useradd -s /bin/bash -m -G adm stack
@@ -337,7 +336,7 @@ chmod 600 home/stack/.ssh/authorized_keys
 
 sync ${mount_dir}
 sleep 1
-umount ${mount_dir}/dev ${mount_dir}/proc ${mount_dir}/pts ${mount_dir}/sys
+umount ${mount_dir}/dev ${mount_dir}/proc ${mount_dir}/sys
 sleep 1
 umount ${mount_dir}
 sleep 1

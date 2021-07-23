@@ -197,22 +197,23 @@ write_files:
         echo SERVICE_TIMEOUT=600 >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
+    owner: stack:stack
     permissions: 0755
 
 bootcmd:
- - groupadd kvm
- - useradd -m -s /bin/bash -G kvm stack
- - touch /home/stack/.hushlogin
- - echo source .bash.conf >> /home/stack/.bashrc
- - echo source .adminrc >> /home/stack/.bashrc
+  - groupadd kvm
+  - useradd -m -s /bin/bash -G kvm stack
+  - echo source .bash.conf >> /home/stack/.bashrc
+  - echo source .adminrc >> /home/stack/.bashrc
 
 runcmd:
   - touch /etc/cloud/cloud-init.disabled
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - su -l stack ./start.sh
+  - su -l stack touch ./.hushlogin
   - rm -rf /var/lib/apt/lists /var/cache/apt /tmp/*
   - find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
-  - rm -rf /home/stack/devstack
+  - rm -rf /home/stack/devstack /home/stack/start.sh
 
 power_state:
  mode: poweroff
