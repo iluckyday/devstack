@@ -232,6 +232,10 @@ NOVNC_REPO=http://git.trystack.cn/kanaka/noVNC.git
 SPICE_REPO=http://git.trystack.cn/git/spice/spice-html5.git
 ETCD_DOWNLOAD_URL=https://mirrors.huaweicloud.com/etcd
 
+disable_all_services
+enable_service rabbit mysql etcd3 key
+MYSQL_SERVICE_NAME=mariadb
+
 ENABLE_HTTPD_MOD_WSGI_SERVICES=True
 KEYSTONE_USE_MOD_WSGI=True
 
