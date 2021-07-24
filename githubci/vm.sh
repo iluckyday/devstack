@@ -183,6 +183,7 @@ write_files:
         cd /home/stack
         git clone --depth=1 https://opendev.org/openstack/devstack
         cd devstack
+        sed -i 's/sleep 1/sleep 300/' lib/neutron_plugins/ovn_agent
         echo '[[local|localrc]]' > local.conf
         echo ADMIN_PASSWORD=devstack >> local.conf
         echo DATABASE_PASSWORD=devstack >> local.conf
@@ -210,7 +211,6 @@ runcmd:
   - touch /etc/cloud/cloud-init.disabled
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - su -l stack ./start.sh
-  - su -l stack touch ./.hushlogin
   - rm -rf /var/lib/apt/lists /var/cache/apt /tmp/*
   - find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
   - rm -rf /home/stack/devstack /home/stack/start.sh

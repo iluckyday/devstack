@@ -240,6 +240,7 @@ ENABLE_VERBOSE_LOG_LEVEL=True
 GIT_BASE=${GIT_BASE:-https://opendev.org}
 
 disable_all_services
+disable_service tempest dstat
 enable_service rabbit mysql etcd3 key
 #MYSQL_SERVICE_NAME=mariadb
 
