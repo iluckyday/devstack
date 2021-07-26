@@ -195,7 +195,19 @@ write_files:
         echo SERVICE_IP_VERSION=4 >> local.conf
         echo HOST_IP=10.0.2.15 >> local.conf
         echo LIBVIRT_TYPE=kvm >> local.conf
+        # for github actions
+        echo GIT_BASE=https://github.com >> local.conf
+        echo GIT_DEPTH=1 >> local.conf
+        echo disable_service tempest dstat >> local.conf
+        echo disable_service c-sch c-api c-vol >> local.conf
+        echo disable_service horizon >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
+        echo DOWNLOAD_DEFAULT_IMAGES=False >> local.conf
+        echo NEUTRON_CREATE_INITIAL_NETWORKS=False >> local.conf
+        echo VERBOSE=False >> local.conf
+        echo SYSLOG=True >> local.conf
+        echo ENABLE_DEBUG_LOG_LEVEL=False >> local.conf
+        echo DEBUG_LIBVIRT=False >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
