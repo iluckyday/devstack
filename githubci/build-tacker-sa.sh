@@ -297,7 +297,7 @@ rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /o
 rm -rf /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
 rm -rf /usr/lib/python3/dist-packages/*/tests /var/lib/*/*.sqlite
 rm -rf /opt/stack/*/*/locale /opt/stack/*/*/tests /opt/stack/*/docs /opt/stack/*/*/docs
-rm -rf /usr/include /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/mysql /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
+rm -rf /usr/include /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
 EOF
 
 rm -f ${mount_dir}/etc/resolv.conf

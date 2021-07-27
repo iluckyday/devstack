@@ -200,7 +200,7 @@ write_files:
         echo GIT_DEPTH=1 >> local.conf
         echo disable_service tempest dstat >> local.conf
         echo disable_service c-sch c-api c-vol >> local.conf
-        echo disable_service horizon >> local.conf
+        # echo disable_service horizon >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=False >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=False >> local.conf
