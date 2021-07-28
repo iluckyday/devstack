@@ -12,7 +12,7 @@ UBUNTU_RELEASE=focal
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
 
-base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,ca-certificates,busybox"
+base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,ca-certificates,busybox,netbase,iptables"
 exclude_apps="ifupdown,unattended-upgrades"
 disable_services="e2scrub_reap.service \
 systemd-timesyncd.service \
@@ -232,7 +232,6 @@ disable_service tempest dstat
 disable_service c-sch c-api c-vol
 disable_service horizon
 #MYSQL_SERVICE_NAME=mariadb
-GIT_BASE=https://github.com
 GIT_DEPTH=1
 SERVICE_TIMEOUT=600
 DOWNLOAD_DEFAULT_IMAGES=False
@@ -250,25 +249,25 @@ Q_USE_SECGROUP=False
 LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
 
 # Enable heat, networking-sfc, barbican and mistral
-enable_plugin heat https://github.com/openstack/heat master
-enable_plugin networking-sfc https://github.com/openstack/networking-sfc master
-enable_plugin barbican https://github.com/openstack/barbican master
-enable_plugin mistral https://github.com/openstack/mistral master
+enable_plugin heat https://opendev.org/openstack/heat master
+enable_plugin networking-sfc https://opendev.org/openstack/networking-sfc master
+enable_plugin barbican https://opendev.org/openstack/barbican master
+enable_plugin mistral https://opendev.org/openstack/mistral master
 
 # Ceilometer
 #CEILOMETER_PIPELINE_INTERVAL=300
 CEILOMETER_EVENT_ALARM=True
-enable_plugin ceilometer https://github.com/openstack/ceilometer master
-enable_plugin aodh https://github.com/openstack/aodh master
+enable_plugin ceilometer https://opendev.org/openstack/ceilometer master
+enable_plugin aodh https://opendev.org/openstack/aodh master
 
 # Blazar
-enable_plugin blazar https://github.com/openstack/blazar.git master
+enable_plugin blazar https://opendev.org/openstack/blazar.git master
 
 # Fenix
-enable_plugin fenix https://github.com/x/fenix.git master
+enable_plugin fenix https://opendev.org/x/fenix.git master
 
 # Tacker
-enable_plugin tacker https://github.com/openstack/tacker master
+enable_plugin tacker https://opendev.org/openstack/tacker master
 
 enable_service n-novnc
 enable_service n-cauth
@@ -291,7 +290,7 @@ sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postin
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common python3-tackerclient
 
-git clone -b $DEVSTACK_BRANCH --depth=1 https://github.com/openstack/devstack /tmp/devstack
+git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
