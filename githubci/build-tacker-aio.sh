@@ -40,9 +40,10 @@ mount -o bind /dev ${mount_dir}/dev
 chroot ${mount_dir} useradd -s /bin/bash -m -G adm stack
 
 cat << EOF > ${mount_dir}/etc/fstab
-LABEL=ubuntu-root /            ext4    defaults,noatime             0 0
-tmpfs             /tmp         tmpfs   mode=1777,size=80%           0 0
-tmpfs             /var/log     tmpfs   defaults,noatime             0 0
+LABEL=ubuntu-root /                  ext4    defaults,noatime             0 0
+tmpfs             /tmp               tmpfs   mode=1777,size=80%           0 0
+tmpfs             /var/log           tmpfs   defaults,noatime             0 0
+tmpfs             /var/log/mysql     tmpfs   defaults,noatime             0 0
 EOF
 
 cat << EOF > ${mount_dir}/etc/apt/apt.conf.d/99freedisk
@@ -221,19 +222,24 @@ PIP_UPGRADE=True
 USE_PYTHON3=True
 ENABLE_IDENTITY_V2=False
 IP_VERSION=4
-GIT_DEPTH=1
 SERVICE_IP_VERSION=4
 HOST_IP=10.0.2.15
-MYSQL_SERVICE_NAME=mariadb
 LIBVIRT_TYPE=kvm
-DOWNLOAD_DEFAULT_IMAGES=False
 RECLONE=yes
-FORCE=yes
-VERBOSE=True
 SYSLOG=True
-ENABLE_DEBUG_LOG_LEVEL=True
-DEBUG_LIBVIRT=False
+
+disable_service tempest dstat
+disable_service c-sch c-api c-vol
+disable_service horizon
+#MYSQL_SERVICE_NAME=mariadb
+GIT_BASE=https://github.com
+GIT_DEPTH=1
 SERVICE_TIMEOUT=600
+DOWNLOAD_DEFAULT_IMAGES=False
+NEUTRON_CREATE_INITIAL_NETWORKS=False
+VERBOSE=False
+ENABLE_DEBUG_LOG_LEVEL=False
+DEBUG_LIBVIRT=False
 
 # Neutron ML2 with OpenVSwitch
 Q_PLUGIN=ml2
@@ -244,30 +250,28 @@ Q_USE_SECGROUP=False
 LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
 
 # Enable heat, networking-sfc, barbican and mistral
-enable_plugin heat https://opendev.org/openstack/heat master
-enable_plugin networking-sfc https://opendev.org/openstack/networking-sfc master
-enable_plugin barbican https://opendev.org/openstack/barbican master
-enable_plugin mistral https://opendev.org/openstack/mistral master
+enable_plugin heat https://github.com/openstack/heat master
+enable_plugin networking-sfc https://github.com/openstack/networking-sfc master
+enable_plugin barbican https://github.com/openstack/barbican master
+enable_plugin mistral https://github.com/openstack/mistral master
 
 # Ceilometer
 #CEILOMETER_PIPELINE_INTERVAL=300
 CEILOMETER_EVENT_ALARM=True
-enable_plugin ceilometer https://opendev.org/openstack/ceilometer master
-enable_plugin aodh https://opendev.org/openstack/aodh master
+enable_plugin ceilometer https://github.com/openstack/ceilometer master
+enable_plugin aodh https://github.com/openstack/aodh master
 
 # Blazar
 enable_plugin blazar https://github.com/openstack/blazar.git master
 
 # Fenix
-enable_plugin fenix https://opendev.org/x/fenix.git master
+enable_plugin fenix https://github.com/x/fenix.git master
 
 # Tacker
-enable_plugin tacker https://opendev.org/openstack/tacker master
+enable_plugin tacker https://github.com/openstack/tacker master
 
 enable_service n-novnc
 enable_service n-cauth
-
-disable_service tempest
 
 [[post-config|/etc/neutron/dhcp_agent.ini]]
 [DEFAULT]
@@ -285,9 +289,9 @@ set -e
 sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
 
 sudo apt update
-sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common
+sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common python3-tackerclient
 
-git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
+git clone -b $DEVSTACK_BRANCH --depth=1 https://github.com/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common

@@ -40,9 +40,10 @@ mount -o bind /dev ${mount_dir}/dev
 chroot ${mount_dir} useradd -s /bin/bash -m -G adm stack
 
 cat << EOF > ${mount_dir}/etc/fstab
-LABEL=ubuntu-root /            ext4    defaults,noatime             0 0
-tmpfs             /tmp         tmpfs   mode=1777,size=80%           0 0
-tmpfs             /var/log     tmpfs   defaults,noatime             0 0
+LABEL=ubuntu-root /                  ext4    defaults,noatime             0 0
+tmpfs             /tmp               tmpfs   mode=1777,size=80%           0 0
+tmpfs             /var/log           tmpfs   defaults,noatime             0 0
+tmpfs             /var/log/mysql     tmpfs   defaults,noatime             0 0
 EOF
 
 cat << EOF > ${mount_dir}/etc/apt/apt.conf.d/99freedisk
@@ -283,8 +284,11 @@ echo 'nameserver 1.1.1.1' > /etc/resolv.conf
 systemctl set-default multi-user.target
 systemctl enable devstack@var-log-dirs.service
 
-apt remove -y --purge git git-man
-dpkg -P --force-depends gcc-9 libgcc-9-dev g++-9 cpp cpp-9 iso-codes
+apt update
+apt install -y python3-tackerclient
+
+#apt remove -y --purge git git-man
+#dpkg -P --force-depends gcc-9 libgcc-9-dev g++-9 cpp cpp-9 iso-codes
 
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr /opt -type d -name tests -prune -exec rm -rf {} +
