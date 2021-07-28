@@ -237,7 +237,7 @@ GIT_DEPTH=1
 SERVICE_TIMEOUT=600
 DOWNLOAD_DEFAULT_IMAGES=False
 NEUTRON_CREATE_INITIAL_NETWORKS=False
-VERBOSE=False
+VERBOSE=True
 ENABLE_DEBUG_LOG_LEVEL=False
 DEBUG_LIBVIRT=False
 
@@ -311,6 +311,8 @@ systemctl enable devstack@var-log-dirs.service
 
 apt remove -y --purge git git-man
 dpkg -P --force-depends gcc-9 libgcc-9-dev g++-9 cpp cpp-9 iso-codes
+
+sed -i '/log_file/d' /etc/barbican/barbican.conf
 
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr /opt -type d -name tests -prune -exec rm -rf {} +

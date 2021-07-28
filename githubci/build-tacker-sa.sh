@@ -287,6 +287,8 @@ systemctl enable devstack@var-log-dirs.service
 apt update
 apt install -y python3-tackerclient
 
+sed -i '/log_file/d' /etc/barbican/barbican.conf
+
 #apt remove -y --purge git git-man
 #dpkg -P --force-depends gcc-9 libgcc-9-dev g++-9 cpp cpp-9 iso-codes
 
