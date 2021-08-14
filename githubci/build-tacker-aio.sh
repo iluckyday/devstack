@@ -309,7 +309,8 @@ systemctl set-default multi-user.target
 systemctl enable devstack@var-log-dirs.service
 
 apt remove -y --purge git git-man
-dpkg -P --force-depends gcc-9 libgcc-9-dev g++-9 cpp cpp-9 iso-codes
+gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
+dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
 
 sed -i '/log_file/d' /etc/barbican/barbican.conf
 

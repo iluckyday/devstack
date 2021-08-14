@@ -276,7 +276,8 @@ echo 'nameserver 1.1.1.1' > /etc/resolv.conf
 systemctl set-default multi-user.target
 
 apt remove -y --purge git git-man
-dpkg -P --force-depends iso-codes gcc-9 libgcc-9-dev g++-9 cpp cpp-9 gcc-10 libgcc-10-dev cpp-10
+gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
+dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
 
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr /opt -type d -name tests -prune -exec rm -rf {} +

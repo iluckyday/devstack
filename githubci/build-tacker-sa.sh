@@ -290,7 +290,8 @@ apt install -y python3-tackerclient
 sed -i '/log_file/d' /etc/barbican/barbican.conf
 
 #apt remove -y --purge git git-man
-#dpkg -P --force-depends gcc-9 libgcc-9-dev g++-9 cpp cpp-9 iso-codes
+#gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
+#dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
 
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr /opt -type d -name tests -prune -exec rm -rf {} +
