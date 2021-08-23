@@ -286,6 +286,7 @@ set -e
 #busybox nslookup www.google.com
 
 sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
+sudo systemd-run --service-type=oneshot --on-unit-active=120 --on-boot=10 /bin/bash /home/stack/.devstack-stop-services.sh
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common python3-tackerclient
@@ -298,6 +299,67 @@ sed -i 's/qemu-system/qemu-system-x86/' /tmp/devstack/lib/nova_plugins/functions
 
 /tmp/devstack/stack.sh
 EOF
+
+cat << "AEOFA" > ${mount_dir}/home/stack/.devstack-stop-services.sh
+#!/bin/sh
+
+apps="
+glance=glance-api.service
+placement=placement-api.service
+nova-api=nova-api-metadata.service,nova-api.service
+nova-conductor=nova-conductor.service
+nova-novncproxy=nova-novncproxy.service
+nova-scheduler=nova-scheduler.service
+nova-consoleproxy=nova-serialproxy.service,nova-spicehtml5proxy.service,nova-xenvncproxy.service
+neutron-api=neutron-api.service
+neutron-dhcp-agent=neutron-dhcp-agent.service
+neutron-l3-agent=neutron-l3-agent.service
+neutron-openvswitch-agent=neutron-openvswitch-agent.service
+neutron-metadata-agent=neutron-metadata-agent.service
+neutron-rpc-server=neutron-rpc-server.service
+ironic-neutron-agent=ironic-neutron-agent.service
+cinder-api=cinder-api.service
+cinder-scheduler=cinder-scheduler.service
+ironic-api=ironic-api.service
+ironic-conductor=ironic-conductor.service
+ironic-neutron-agent=ironic-neutron-agent.service
+manila-api=manila-api.service
+manila-scheduler=manila-scheduler.service
+barbican-api=barbican-api.service
+barbican-keystone-listener=barbican-keystone-listener.service
+barbican-worker=barbican-worker.service
+senlin-api=senlin-api.service
+senlin-engine=senlin-engine.service
+designate-central=designate-central.service
+designate-api=designate-api.service
+designate-worker=designate-worker.service
+designate-producer=designate-producer.service
+designate-mdns=designate-mdns.service
+mistral-api=mistral-api.service
+mistral-engine=mistral-engine.service
+mistral-event-engine=mistral-event-engine.service
+mistral-executor=mistral-executor.service
+vitrage-api=vitrage-api.service
+vitrage-collector=vitrage-collector.service
+vitrage-graph=vitrage-graph.service
+vitrage-ml=vitrage-ml.service
+vitrage-notifier=vitrage-notifier.service
+vitrage-persistor=vitrage-persistor.service
+vitrage-snmp-parsing=vitrage-snmp-parsing.service
+masakari-api=masakari-api.service
+masakari-engine=masakari-engine.service
+"
+
+for app in $apps; do
+	a=${app%=*}
+	s=${app#*=}
+	if dpkg -s $a 2>/dev/null | grep -q "Status: install ok installed"; then
+		systemctl --no-block --quiet --force stop ${s/,/ } 2>/dev/null || true
+	else
+		echo $a not installed yet
+	fi
+done
+AEOFA
 
 cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
@@ -326,6 +388,7 @@ rm -rf /etc/systemd/system/last.target /etc/systemd/system/devstack-install.serv
 rm -rf /usr/lib/python3/dist-packages/*/tests /var/lib/*/*.sqlite
 rm -rf /opt/stack/*/*/locale /opt/stack/*/*/tests /opt/stack/*/docs /opt/stack/*/*/docs
 rm -rf /usr/include /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
+rm -rf /home/stack/.devstack-stop-services.sh
 EOF
 
 rm -f ${mount_dir}/etc/resolv.conf
