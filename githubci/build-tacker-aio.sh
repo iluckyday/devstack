@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 rm -rf /etc/apt/sources.list.d
 sed -i '/src/d' /etc/apt/sources.list
@@ -12,7 +12,7 @@ UBUNTU_RELEASE=focal
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
 
-base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,ca-certificates,busybox,netbase,iptables"
+base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,ca-certificates,busybox,netbase,iptables,psmisc"
 exclude_apps="ifupdown,unattended-upgrades"
 disable_services="e2scrub_reap.service \
 systemd-timesyncd.service \
@@ -354,7 +354,10 @@ for app in $apps; do
 	a=${app%=*}
 	s=${app#*=}
 	if dpkg -s $a 2>/dev/null | grep -q "Status: install ok installed"; then
-		systemctl --no-block --quiet --force stop ${s/,/ } 2>/dev/null || true
+		if pstree -alTp $(pgrep devstack-install.sh) | grep -q "${a%-*}"; then
+			continue
+		else
+			systemctl --no-block --quiet --force stop ${s/,/ } 2>/dev/null || true
 	else
 		echo $a not installed yet
 	fi
