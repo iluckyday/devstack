@@ -296,7 +296,7 @@ cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
 sed -i 's/qemu-system/qemu-system-x86/' /tmp/devstack/lib/nova_plugins/functions-libvirt
-sed -i 's/$cmd_pip $upgrade/$cmd_pip $upgrade --ignore-installed/' /tmp/devstack/inc/python
+sed -i 's/\$cmd_pip \$upgrade/\$cmd_pip \$upgrade --ignore-installed/' /tmp/devstack/inc/python
 
 /tmp/devstack/stack.sh
 EOF
