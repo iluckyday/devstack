@@ -279,7 +279,7 @@ EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
-set -e
+set -ex
 
 #ip address show
 #cat /etc/resolv.conf
@@ -303,6 +303,8 @@ EOF
 
 cat << "AEOFA" > ${mount_dir}/home/stack/.devstack-stop-services.sh
 #!/bin/sh
+
+set -x
 
 apps="
 glance=glance-api.service
