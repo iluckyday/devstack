@@ -195,6 +195,7 @@ write_files:
         echo SERVICE_IP_VERSION=4 >> local.conf
         echo HOST_IP=10.0.2.15 >> local.conf
         echo LIBVIRT_TYPE=kvm >> local.conf
+        echo API_WORKERS=1 >> local.conf
         # for github actions
         echo GIT_BASE=https://github.com >> local.conf
         echo GIT_DEPTH=1 >> local.conf
