@@ -445,7 +445,18 @@ chmod 600 home/stack/.ssh/authorized_keys
 "
 
 sync ${mount_dir}
-umount ${mount_dir}/dev ${mount_dir}/proc ${mount_dir}/sys
+sleep 1
+sync ${mount_dir}
+sleep 1
+sync ${mount_dir}
+sleep 1
+umount ${mount_dir}/dev
+sleep 1
+umount ${mount_dir}/proc
+sleep 1
+umount ${mount_dir}/sys
+sleep 1
+killall -r provjobd || true
 sleep 1
 umount ${mount_dir}
 sleep 1
