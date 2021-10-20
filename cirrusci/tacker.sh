@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 rm -rf /etc/apt/sources.list.d
 sed -i '/src/d' /etc/apt/sources.list
@@ -7,12 +7,17 @@ apt-get update
 apt-get -o APT::Install-Recommends=0 -o APT::Install-Suggests=0 -y install qemu-system-x86 qemu-utils debootstrap
 
 DEVSTACK_BRANCH=master
-UBUNTU_RELEASE=focal
+
+CLOUD_IMAGES_URL=http://cloud-images.ubuntu.com
+CLOUD_IMAGES_PAGE=$(curl -skL ${CLOUD_IMAGES_URL})
+LTS_LATEST_VERSION=$(echo "${CLOUD_IMAGES_PAGE}" | grep -oP "Server \K(.*) (?=LTS)" | sort -r | head -n 1)
+LTS_LATEST_NAME=$(echo "${CLOUD_IMAGES_PAGE}" | grep "${LTS_LATEST_VERSION}" | grep -oP "LTS \(\K([a-zA-Z]*)" | tr [:upper:] [:lower:])
+UBUNTU_RELEASE=${LTS_LATEST_NAME}
 
 mount_dir=/tmp/devstack
 mkdir -p ${mount_dir}
 
-base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,ca-certificates,busybox"
+base_apps="systemd,systemd-sysv,sudo,iproute2,bash-completion,openssh-server,ca-certificates,busybox,netbase,iptables,psmisc"
 exclude_apps="ifupdown,unattended-upgrades"
 disable_services="e2scrub_reap.service \
 systemd-timesyncd.service \
@@ -40,9 +45,10 @@ mount -o bind /dev ${mount_dir}/dev
 chroot ${mount_dir} useradd -s /bin/bash -m -G adm stack
 
 cat << EOF > ${mount_dir}/etc/fstab
-LABEL=ubuntu-root /            ext4    defaults,noatime             0 0
-tmpfs             /tmp         tmpfs   mode=1777,size=80%           0 0
-tmpfs             /var/log     tmpfs   defaults,noatime             0 0
+LABEL=ubuntu-root /                  ext4    defaults,noatime             0 0
+tmpfs             /tmp               tmpfs   mode=1777,size=80%           0 0
+tmpfs             /var/log           tmpfs   defaults,noatime             0 0
+tmpfs             /var/log/mysql     tmpfs   defaults,noatime             0 0
 EOF
 
 cat << EOF > ${mount_dir}/etc/apt/apt.conf.d/99freedisk
@@ -190,6 +196,13 @@ ExecStart=+/bin/bash /home/stack/.devstack-install-post.sh
 WantedBy=last.target
 EOF
 
+mkdir -p ${mount_dir}/etc/systemd/system/pmlogger.service.d
+cat << EOF > ${mount_dir}/etc/systemd/system/pmlogger.service.d/opt.conf
+[Service]
+TimeoutSec=600
+PIDFile=
+EOF
+
 cat << EOF > ${mount_dir}/home/stack/.adminrc
 export OS_USERNAME=admin
 export OS_PASSWORD=devstack
@@ -206,16 +219,6 @@ EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-local.conf
 [[local|localrc]]
-# enable_plugin senlin https://opendev.org/openstack/senlin
-
-# enable_plugin networking-ovs-dpdk https://opendev.org/x/networking-ovs-dpdk
-# OVS_DPDK_MODE=controller_ovs_dpdk
-# OVS_NUM_HUGEPAGES=200
-# OVS_DATAPATH_TYPE=netdev
-
-disable_service tempest dstat
-disable_service c-sch c-api c-vol
-disable_service horizon
 ADMIN_PASSWORD=devstack
 DATABASE_PASSWORD=devstack
 SERVICE_PASSWORD=devstack
@@ -224,44 +227,151 @@ PIP_UPGRADE=True
 USE_PYTHON3=True
 ENABLE_IDENTITY_V2=False
 IP_VERSION=4
-GIT_DEPTH=1
 SERVICE_IP_VERSION=4
 HOST_IP=10.0.2.15
-MYSQL_SERVICE_NAME=mariadb
 LIBVIRT_TYPE=kvm
 API_WORKERS=1
-#DOWNLOAD_DEFAULT_IMAGES=True
 RECLONE=yes
-FORCE=yes
-VERBOSE=True
 SYSLOG=True
-ENABLE_DEBUG_LOG_LEVEL=True
-DEBUG_LIBVIRT=False
+
+disable_service tempest dstat
+disable_service c-sch c-api c-vol
+disable_service horizon
+#MYSQL_SERVICE_NAME=mariadb
+GIT_DEPTH=1
 SERVICE_TIMEOUT=600
-GIT_BASE=https://github.com
+DOWNLOAD_DEFAULT_IMAGES=False
+NEUTRON_CREATE_INITIAL_NETWORKS=False
+VERBOSE=True
+ENABLE_DEBUG_LOG_LEVEL=False
+DEBUG_LIBVIRT=False
+
+# Neutron ML2 with OpenVSwitch
+Q_PLUGIN=ml2
+Q_AGENT=openvswitch
+
+# Disable security groups
+Q_USE_SECGROUP=False
+LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
+
+# Enable heat, networking-sfc, barbican and mistral
+enable_plugin heat https://opendev.org/openstack/heat master
+enable_plugin networking-sfc https://opendev.org/openstack/networking-sfc master
+enable_plugin barbican https://opendev.org/openstack/barbican master
+enable_plugin mistral https://opendev.org/openstack/mistral master
+
+# Ceilometer
+#CEILOMETER_PIPELINE_INTERVAL=300
+CEILOMETER_EVENT_ALARM=True
+enable_plugin ceilometer https://opendev.org/openstack/ceilometer master
+enable_plugin aodh https://opendev.org/openstack/aodh master
+
+# Blazar
+enable_plugin blazar https://opendev.org/openstack/blazar.git master
+
+# Fenix
+enable_plugin fenix https://opendev.org/x/fenix.git master
+
+# Tacker
+enable_plugin tacker https://opendev.org/openstack/tacker master
+
+enable_service n-novnc
+enable_service n-cauth
+
+[[post-config|/etc/neutron/dhcp_agent.ini]]
+[DEFAULT]
+enable_isolated_metadata = True
 EOF
 
 cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
-set -e
+set -ex
 
 #ip address show
 #cat /etc/resolv.conf
 #busybox nslookup www.google.com
 
 sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
+sudo systemd-run --service-type=oneshot --on-unit-active=120 --on-boot=10 /bin/bash /home/stack/.devstack-stop-services.sh
 
 sudo apt update
-sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common
+sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common python3-tackerclient
 
-git clone -c http.sslverify=false -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
+git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
 sed -i 's/qemu-system/qemu-system-x86/' /tmp/devstack/lib/nova_plugins/functions-libvirt
+sed -i 's/\$cmd_pip \$upgrade/\$cmd_pip \$upgrade --ignore-installed/' /tmp/devstack/inc/python
 
 /tmp/devstack/stack.sh
 EOF
+
+cat << "AEOFA" > ${mount_dir}/home/stack/.devstack-stop-services.sh
+#!/bin/sh
+
+set -x
+
+apps="
+glance=glance-api.service
+placement=placement-api.service
+nova-api=nova-api-metadata.service,nova-api.service
+nova-conductor=nova-conductor.service
+nova-novncproxy=nova-novncproxy.service
+nova-scheduler=nova-scheduler.service
+nova-consoleproxy=nova-serialproxy.service,nova-spicehtml5proxy.service,nova-xenvncproxy.service
+neutron-api=neutron-api.service
+neutron-dhcp-agent=neutron-dhcp-agent.service
+neutron-l3-agent=neutron-l3-agent.service
+neutron-openvswitch-agent=neutron-openvswitch-agent.service
+neutron-metadata-agent=neutron-metadata-agent.service
+neutron-rpc-server=neutron-rpc-server.service
+ironic-neutron-agent=ironic-neutron-agent.service
+cinder-api=cinder-api.service
+cinder-scheduler=cinder-scheduler.service
+ironic-api=ironic-api.service
+ironic-conductor=ironic-conductor.service
+ironic-neutron-agent=ironic-neutron-agent.service
+manila-api=manila-api.service
+manila-scheduler=manila-scheduler.service
+barbican-api=barbican-api.service
+barbican-keystone-listener=barbican-keystone-listener.service
+barbican-worker=barbican-worker.service
+senlin-api=senlin-api.service
+senlin-engine=senlin-engine.service
+designate-central=designate-central.service
+designate-api=designate-api.service
+designate-worker=designate-worker.service
+designate-producer=designate-producer.service
+designate-mdns=designate-mdns.service
+mistral-api=mistral-api.service
+mistral-engine=mistral-engine.service
+mistral-event-engine=mistral-event-engine.service
+mistral-executor=mistral-executor.service
+vitrage-api=vitrage-api.service
+vitrage-collector=vitrage-collector.service
+vitrage-graph=vitrage-graph.service
+vitrage-ml=vitrage-ml.service
+vitrage-notifier=vitrage-notifier.service
+vitrage-persistor=vitrage-persistor.service
+vitrage-snmp-parsing=vitrage-snmp-parsing.service
+masakari-api=masakari-api.service
+masakari-engine=masakari-engine.service
+"
+
+for app in $apps; do
+	a=${app%=*}
+	s=${app#*=}
+	if dpkg -s $a 2>/dev/null | grep -q "Status: install ok installed"; then
+		if pstree -alTp $(pgrep devstack-install.sh) | grep -q "${a%-*}"; then
+			continue
+		else
+			systemctl --no-block --quiet --force stop ${s/,/ } 2>/dev/null || true
+	else
+		echo $a not installed yet
+	fi
+done
+AEOFA
 
 cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
@@ -276,6 +386,8 @@ apt remove -y --purge git git-man
 gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
 dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
 
+sed -i '/log_file/d' /etc/barbican/barbican.conf
+
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr /opt -type d -name tests -prune -exec rm -rf {} +
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
@@ -288,6 +400,7 @@ rm -rf /etc/systemd/system/last.target /etc/systemd/system/devstack-install.serv
 rm -rf /usr/lib/python3/dist-packages/*/tests /var/lib/*/*.sqlite
 rm -rf /opt/stack/*/*/locale /opt/stack/*/*/tests /opt/stack/*/docs /opt/stack/*/*/docs
 rm -rf /usr/include /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
+rm -rf /home/stack/.devstack-stop-services.sh
 EOF
 
 rm -f ${mount_dir}/etc/resolv.conf
@@ -354,7 +467,7 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 5G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 sleep 1
 sync
@@ -365,9 +478,9 @@ echo "Original image size:"
 du -h /tmp/devstack.raw
 
 echo Converting ...
-qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack.img
+qemu-img convert -f raw -c -O qcow2 /tmp/devstack.raw /dev/shm/devstack-tacker-aio.img
 
 echo "Compressed image size:"
-du -h /dev/shm/devstack.img
+du -h /dev/shm/devstack-tacker-aio.img
 
 exit 0

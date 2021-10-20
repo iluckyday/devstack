@@ -1,0 +1,15 @@
+task:
+  name: Linux
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 8
+    memory: 32G
+    timeout_in: 120m
+  environment:
+    WXPUSHER_APPTOKEN: ENCRYPTED[cd6d3ab2b4befd2afa9b1c08da8dff21c5920c274e126e745f64f0506ad30f437c410c4c6ec5c92b98cf2e48278f10c2]
+    WXPUSHER_UID: ENCRYPTED[cd6d3ab2b4befd2afa9b1c08da8dff21c5920c274e126e745f64f0506ad30f437c410c4c6ec5c92b98cf2e48278f10c2]
+  setup_script:
+    - bash cirrusci/tacker.sh
+    - bash transfer.sh /dev/shm/devstack-tacker-aio.img
