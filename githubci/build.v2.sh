@@ -254,7 +254,9 @@ sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postin
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common
 
-git clone -c http.sslverify=false -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
+git config --global http.sslverify false
+git config --global https.sslverify false
+git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common

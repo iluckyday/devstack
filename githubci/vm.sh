@@ -181,6 +181,8 @@ write_files:
         DEBIAN_FRONTEND=noninteractive sudo apt-get install -qqy git || sudo yum install -qy git
         sudo chown stack:stack /home/stack
         cd /home/stack
+        git config --global http.sslverify false
+        git config --global https.sslverify false
         git clone --depth=1 https://opendev.org/openstack/devstack
         cd devstack
         sed -i 's/sleep 1/sleep 300/' lib/neutron_plugins/ovn_agent
