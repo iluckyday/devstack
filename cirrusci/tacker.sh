@@ -297,7 +297,7 @@ sudo systemd-run --service-type=oneshot --on-unit-active=120 --on-boot=10 /bin/b
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common python3-tackerclient
 
-git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
+git clone -c http.sslverify=false -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
@@ -467,7 +467,7 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 6G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 24g -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 sleep 1
 sync
