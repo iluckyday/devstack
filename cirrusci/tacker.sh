@@ -271,7 +271,7 @@ enable_plugin aodh https://github.com/openstack/aodh master
 enable_plugin blazar https://github.com/openstack/blazar.git master
 
 # Fenix
-enable_plugin fenix https://github.com/x/fenix.git master
+enable_plugin fenix https://opendev.org/x/fenix.git master
 
 # Tacker
 enable_plugin tacker https://github.com/openstack/tacker master
