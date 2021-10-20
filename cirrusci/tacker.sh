@@ -233,10 +233,11 @@ LIBVIRT_TYPE=kvm
 API_WORKERS=1
 RECLONE=yes
 SYSLOG=True
+GIT_BASE=https://github.com
 
 disable_service tempest dstat
-disable_service c-sch c-api c-vol
-disable_service horizon
+#disable_service c-sch c-api c-vol
+#disable_service horizon
 #MYSQL_SERVICE_NAME=mariadb
 GIT_DEPTH=1
 SERVICE_TIMEOUT=600
@@ -255,25 +256,25 @@ Q_USE_SECGROUP=False
 LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
 
 # Enable heat, networking-sfc, barbican and mistral
-enable_plugin heat https://opendev.org/openstack/heat master
-enable_plugin networking-sfc https://opendev.org/openstack/networking-sfc master
-enable_plugin barbican https://opendev.org/openstack/barbican master
-enable_plugin mistral https://opendev.org/openstack/mistral master
+enable_plugin heat https://github.com/openstack/heat master
+enable_plugin networking-sfc https://github.com/openstack/networking-sfc master
+enable_plugin barbican https://github.com/openstack/barbican master
+enable_plugin mistral https://github.com/openstack/mistral master
 
 # Ceilometer
 #CEILOMETER_PIPELINE_INTERVAL=300
 CEILOMETER_EVENT_ALARM=True
-enable_plugin ceilometer https://opendev.org/openstack/ceilometer master
-enable_plugin aodh https://opendev.org/openstack/aodh master
+enable_plugin ceilometer https://github.com/openstack/ceilometer master
+enable_plugin aodh https://github.com/openstack/aodh master
 
 # Blazar
-enable_plugin blazar https://opendev.org/openstack/blazar.git master
+enable_plugin blazar https://github.com/openstack/blazar.git master
 
 # Fenix
-enable_plugin fenix https://opendev.org/x/fenix.git master
+enable_plugin fenix https://github.com/x/fenix.git master
 
 # Tacker
-enable_plugin tacker https://opendev.org/openstack/tacker master
+enable_plugin tacker https://github.com/openstack/tacker master
 
 enable_service n-novnc
 enable_service n-cauth
@@ -287,12 +288,7 @@ cat << EOF > ${mount_dir}/home/stack/.devstack-install.sh
 #!/bin/bash
 set -ex
 
-#ip address show
-#cat /etc/resolv.conf
-#busybox nslookup www.google.com
-
 sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postinst /var/lib/dpkg/info/dbus.postinst /var/lib/dpkg/info/initramfs-tools.postinst
-sudo systemd-run --service-type=oneshot --on-unit-active=120 --on-boot=10 /bin/bash /home/stack/.devstack-stop-services.sh
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common python3-tackerclient
@@ -300,7 +296,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-commo
 git config --global http.sslverify false
 git config --global https.sslverify false
 
-git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
+git clone -b $DEVSTACK_BRANCH --depth=1 https://github.com/openstack/devstack /tmp/devstack
 cp /home/stack/.devstack-local.conf /tmp/devstack/local.conf
 
 sed -i '/postgresql-server-dev-all/d' /tmp/devstack/files/debs/neutron-common
@@ -309,72 +305,6 @@ sed -i 's/\$cmd_pip \$upgrade/\$cmd_pip \$upgrade --ignore-installed/' /tmp/devs
 
 /tmp/devstack/stack.sh
 EOF
-
-cat << "AEOFA" > ${mount_dir}/home/stack/.devstack-stop-services.sh
-#!/bin/sh
-
-set -x
-
-apps="
-glance=glance-api.service
-placement=placement-api.service
-nova-api=nova-api-metadata.service,nova-api.service
-nova-conductor=nova-conductor.service
-nova-novncproxy=nova-novncproxy.service
-nova-scheduler=nova-scheduler.service
-nova-consoleproxy=nova-serialproxy.service,nova-spicehtml5proxy.service,nova-xenvncproxy.service
-neutron-api=neutron-api.service
-neutron-dhcp-agent=neutron-dhcp-agent.service
-neutron-l3-agent=neutron-l3-agent.service
-neutron-openvswitch-agent=neutron-openvswitch-agent.service
-neutron-metadata-agent=neutron-metadata-agent.service
-neutron-rpc-server=neutron-rpc-server.service
-ironic-neutron-agent=ironic-neutron-agent.service
-cinder-api=cinder-api.service
-cinder-scheduler=cinder-scheduler.service
-ironic-api=ironic-api.service
-ironic-conductor=ironic-conductor.service
-ironic-neutron-agent=ironic-neutron-agent.service
-manila-api=manila-api.service
-manila-scheduler=manila-scheduler.service
-barbican-api=barbican-api.service
-barbican-keystone-listener=barbican-keystone-listener.service
-barbican-worker=barbican-worker.service
-senlin-api=senlin-api.service
-senlin-engine=senlin-engine.service
-designate-central=designate-central.service
-designate-api=designate-api.service
-designate-worker=designate-worker.service
-designate-producer=designate-producer.service
-designate-mdns=designate-mdns.service
-mistral-api=mistral-api.service
-mistral-engine=mistral-engine.service
-mistral-event-engine=mistral-event-engine.service
-mistral-executor=mistral-executor.service
-vitrage-api=vitrage-api.service
-vitrage-collector=vitrage-collector.service
-vitrage-graph=vitrage-graph.service
-vitrage-ml=vitrage-ml.service
-vitrage-notifier=vitrage-notifier.service
-vitrage-persistor=vitrage-persistor.service
-vitrage-snmp-parsing=vitrage-snmp-parsing.service
-masakari-api=masakari-api.service
-masakari-engine=masakari-engine.service
-"
-
-for app in $apps; do
-	a=${app%=*}
-	s=${app#*=}
-	if dpkg -s $a 2>/dev/null | grep -q "Status: install ok installed"; then
-		if pstree -alTp $(pgrep devstack-install.sh) | grep -q "${a%-*}"; then
-			continue
-		else
-			systemctl --no-block --quiet --force stop ${s/,/ } 2>/dev/null || true
-	else
-		echo $a not installed yet
-	fi
-done
-AEOFA
 
 cat << "EOF" > ${mount_dir}/home/stack/.devstack-install-post.sh
 #!/bin/bash
@@ -403,7 +333,6 @@ rm -rf /etc/systemd/system/last.target /etc/systemd/system/devstack-install.serv
 rm -rf /usr/lib/python3/dist-packages/*/tests /var/lib/*/*.sqlite
 rm -rf /opt/stack/*/*/locale /opt/stack/*/*/tests /opt/stack/*/docs /opt/stack/*/*/docs
 rm -rf /usr/include /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
-rm -rf /home/stack/.devstack-stop-services.sh
 EOF
 
 rm -f ${mount_dir}/etc/resolv.conf
@@ -470,7 +399,7 @@ umount ${mount_dir}
 sleep 1
 losetup -d $loopx
 
-qemu-system-x86_64 -name devstack-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 24g -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
+qemu-system-x86_64 -name devstack-building -machine q35 -cpu host -smp "$(nproc)" -m 24g -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/devstack.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off -device virtio-net,netdev=n0
 
 sleep 1
 sync
