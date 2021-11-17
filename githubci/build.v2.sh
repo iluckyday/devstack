@@ -279,7 +279,7 @@ gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}
 dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
 
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
-find /usr /opt -type d -name tests -prune -exec rm -rf {} +
+#find /usr /opt -type d -name tests -prune -exec rm -rf {} +
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
 find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'Etc' -a ! -name '*UTC' -a ! -name '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
 rm -rf /var/lib/mysql/ib_logfile* /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl /root/.cache /home/stack/.cache
@@ -287,8 +287,8 @@ rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/
 rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
 rm -rf /home/stack/.devstack* /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/*/{releasenotes,playbooks,.git,doc} /home/stack/.wget-hsts
 rm -rf /etc/systemd/system/last.target /etc/systemd/system/devstack-install.service
-rm -rf /usr/lib/python3/dist-packages/*/tests /var/lib/*/*.sqlite
-rm -rf /opt/stack/*/*/locale /opt/stack/*/*/tests /opt/stack/*/docs /opt/stack/*/*/docs
+rm -rf /var/lib/*/*.sqlite
+rm -rf /opt/stack/*/*/locale /opt/stack/*/docs /opt/stack/*/*/docs
 rm -rf /usr/include /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3 /usr/share/misc/pci.ids /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
 EOF
 
