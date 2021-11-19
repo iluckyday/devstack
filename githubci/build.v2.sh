@@ -254,6 +254,8 @@ sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postin
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common
 
+hostname devstack
+
 git config --global http.sslverify false
 git config --global https.sslverify false
 git clone -b $DEVSTACK_BRANCH --depth=1 https://opendev.org/openstack/devstack /tmp/devstack
@@ -277,6 +279,8 @@ systemctl enable devstack@var-log-dirs.service
 apt remove -y --purge git git-man
 gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
 dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
+
+sed -i 's/virt_type = qemu/virt_type = kvm' /etc/nova/nova.conf
 
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 #find /usr /opt -type d -name tests -prune -exec rm -rf {} +

@@ -226,6 +226,7 @@ runcmd:
   - touch /etc/cloud/cloud-init.disabled
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - su -l stack ./start.sh
+  - sed -i 's/virt_type = qemu/virt_type = kvm' /etc/nova/nova.conf
   - rm -rf /var/lib/apt/lists /var/cache/apt /tmp/*
   - find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
   - rm -rf /home/stack/devstack /home/stack/start.sh
