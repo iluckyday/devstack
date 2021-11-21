@@ -254,7 +254,7 @@ sudo rm -f /var/lib/dpkg/info/libc-bin.postinst /var/lib/dpkg/info/man-db.postin
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt install -y git software-properties-common
 
-hostname devstack
+sudo hostname devstack
 
 git config --global http.sslverify false
 git config --global https.sslverify false
