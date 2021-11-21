@@ -280,7 +280,7 @@ apt remove -y --purge git git-man
 gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
 dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
 
-sed -i 's/virt_type = qemu/virt_type = kvm' /etc/nova/nova.conf
+sed -i 's/virt_type = qemu/virt_type = kvm/' /etc/nova/nova.conf
 
 find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
 #find /usr /opt -type d -name tests -prune -exec rm -rf {} +
@@ -300,7 +300,8 @@ rm -f ${mount_dir}/etc/resolv.conf
 echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf
 echo 'nameserver 1.1.1.1' > ${mount_dir}/etc/resolv.conf.ORIG
 echo devstack > ${mount_dir}/etc/hostname
-echo 127.0.0.1 localhost devstack >> ${mount_dir}/etc/hosts
+echo 127.0.0.1 localhost >> ${mount_dir}/etc/hosts
+echo 10.0.2.15 devstack >> ${mount_dir}/etc/hosts
 
 mkdir -p ${mount_dir}/boot/syslinux
 cat << EOF > ${mount_dir}/boot/syslinux/syslinux.cfg
