@@ -204,6 +204,7 @@ write_files:
         echo disable_service tempest dstat >> local.conf
         echo disable_service c-sch c-api c-vol >> local.conf
         # echo disable_service horizon >> local.conf
+        echo enable_service n-spice >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=False >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=False >> local.conf
