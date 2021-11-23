@@ -216,7 +216,7 @@ cat << EOF > ${mount_dir}/home/stack/.devstack-local.conf
 disable_service tempest dstat
 disable_service c-sch c-api c-vol
 disable_service horizon
-enable_service n-spice
+enable_service n-novnc n-spice n-sproxy
 
 ADMIN_PASSWORD=devstack
 DATABASE_PASSWORD=devstack

@@ -199,12 +199,12 @@ write_files:
         echo LIBVIRT_TYPE=kvm >> local.conf
         echo API_WORKERS=1 >> local.conf
         # for github actions
-        echo GIT_BASE=https://github.com >> local.conf
+        # echo GIT_BASE=https://github.com >> local.conf
         echo GIT_DEPTH=1 >> local.conf
         echo disable_service tempest dstat >> local.conf
         echo disable_service c-sch c-api c-vol >> local.conf
         # echo disable_service horizon >> local.conf
-        echo enable_service n-spice >> local.conf
+        echo enable_service n-novnc n-spice n-sproxy >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=False >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=False >> local.conf
@@ -212,6 +212,12 @@ write_files:
         echo SYSLOG=True >> local.conf
         echo ENABLE_DEBUG_LOG_LEVEL=False >> local.conf
         echo DEBUG_LIBVIRT=False >> local.conf
+        # other services
+        echo enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas >> local.conf
+        echo enable_plugin barbican https://opendev.org/openstack/barbican >> local.conf
+        echo enable_plugin sahara https://opendev.org/openstack/sahara >> local.conf
+        echo enable_plugin octavia https://opendev.org/openstack/octavia >> local.conf
+        echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
@@ -227,7 +233,7 @@ runcmd:
   - touch /etc/cloud/cloud-init.disabled
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - su -l stack ./start.sh
-  - sed -i 's/virt_type = qemu/virt_type = kvm' /etc/nova/nova.conf
+  - sed -i 's/virt_type = qemu/virt_type = kvm/' /etc/nova/nova.conf
   - rm -rf /var/lib/apt/lists /var/cache/apt /tmp/*
   - find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
   - rm -rf /home/stack/devstack /home/stack/start.sh
