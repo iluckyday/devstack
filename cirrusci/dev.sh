@@ -201,7 +201,7 @@ write_files:
         echo GIT_DEPTH=1 >> local.conf
         echo enable_service n-novnc n-spice n-sproxy >> local.conf
         echo enable_service s-proxy s-object s-container s-account >> local.conf
-        # echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
+        echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
         echo SWIFT_REPLICAS=1 >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
