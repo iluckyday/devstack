@@ -206,8 +206,8 @@ write_files:
         # echo disable_service horizon >> local.conf
         echo enable_service n-novnc n-spice n-sproxy >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
-        echo DOWNLOAD_DEFAULT_IMAGES=False >> local.conf
-        echo NEUTRON_CREATE_INITIAL_NETWORKS=False >> local.conf
+        echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
+        echo NEUTRON_CREATE_INITIAL_NETWORKS=True >> local.conf
         echo VERBOSE=False >> local.conf
         echo SYSLOG=True >> local.conf
         echo ENABLE_DEBUG_LOG_LEVEL=False >> local.conf
@@ -217,6 +217,7 @@ write_files:
         echo enable_plugin barbican https://opendev.org/openstack/barbican >> local.conf
         echo enable_plugin sahara https://opendev.org/openstack/sahara >> local.conf
         echo enable_plugin octavia https://opendev.org/openstack/octavia >> local.conf
+        echo ENABLED_SERVICES+=,octavia,o-api,o-cw,o-hk,o-hm,o-da >> local.conf
         echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
