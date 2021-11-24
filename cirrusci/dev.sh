@@ -209,7 +209,7 @@ write_files:
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=True >> local.conf
-        echo VERBOSE=False >> local.conf
+        echo VERBOSE=True >> local.conf
         echo SYSLOG=True >> local.conf
         echo ENABLE_DEBUG_LOG_LEVEL=False >> local.conf
         echo DEBUG_LIBVIRT=False >> local.conf
