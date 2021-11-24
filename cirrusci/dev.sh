@@ -8,7 +8,7 @@ LTS_LATEST_VERSION=$(echo "${CLOUD_IMAGES_PAGE}" | grep -oP "Server \K(.*) (?=LT
 LTS_LATEST_NAME=$(echo "${CLOUD_IMAGES_PAGE}" | grep "${LTS_LATEST_VERSION}" | grep -oP "LTS \(\K([a-zA-Z]*)" | tr [:upper:] [:lower:])
 URL=${CLOUD_IMAGES_URL}/${LTS_LATEST_NAME}/current/${LTS_LATEST_NAME}-server-cloudimg-amd64.img
 
-DEST=/dev/shm/devstack-vm.img
+DEST=/dev/shm/devstack-dev.img
 WORKDIR=$(mktemp -d /tmp/devstack.XXXXXXXXX)
 
 echo Install QEMU
@@ -201,10 +201,11 @@ write_files:
         # for github actions
         # echo GIT_BASE=https://github.com >> local.conf
         echo GIT_DEPTH=1 >> local.conf
-        echo disable_service tempest dstat >> local.conf
-        echo disable_service c-sch c-api c-vol >> local.conf
+        # echo disable_service tempest dstat >> local.conf
+        # echo disable_service c-sch c-api c-vol >> local.conf
         # echo disable_service horizon >> local.conf
         echo enable_service n-novnc n-spice n-sproxy >> local.conf
+        echo enable_service s-proxy s-object s-container s-account >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=True >> local.conf

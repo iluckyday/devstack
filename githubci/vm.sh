@@ -212,12 +212,6 @@ write_files:
         echo SYSLOG=True >> local.conf
         echo ENABLE_DEBUG_LOG_LEVEL=False >> local.conf
         echo DEBUG_LIBVIRT=False >> local.conf
-        # other services
-        echo enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas >> local.conf
-        echo enable_plugin barbican https://opendev.org/openstack/barbican >> local.conf
-        echo enable_plugin sahara https://opendev.org/openstack/sahara >> local.conf
-        echo enable_plugin octavia https://opendev.org/openstack/octavia >> local.conf
-        echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
