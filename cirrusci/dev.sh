@@ -198,23 +198,18 @@ write_files:
         echo HOST_IP=10.0.2.15 >> local.conf
         echo LIBVIRT_TYPE=kvm >> local.conf
         echo API_WORKERS=1 >> local.conf
-        # for github actions
-        # echo GIT_BASE=https://github.com >> local.conf
         echo GIT_DEPTH=1 >> local.conf
-        # echo disable_service tempest dstat >> local.conf
-        # echo disable_service c-sch c-api c-vol >> local.conf
-        # echo disable_service horizon >> local.conf
         echo enable_service n-novnc n-spice n-sproxy >> local.conf
         echo enable_service s-proxy s-object s-container s-account >> local.conf
-        echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
+        # echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
         echo SWIFT_REPLICAS=1 >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=True >> local.conf
         echo VERBOSE=True >> local.conf
         echo SYSLOG=True >> local.conf
-        echo ENABLE_DEBUG_LOG_LEVEL=False >> local.conf
-        echo DEBUG_LIBVIRT=False >> local.conf
+        echo ENABLE_DEBUG_LOG_LEVEL=True >> local.conf
+        echo DEBUG_LIBVIRT=True >> local.conf
         # other services
         echo enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas >> local.conf
         echo enable_plugin barbican https://opendev.org/openstack/barbican >> local.conf
@@ -251,6 +246,7 @@ cat > meta-data <<EOF
 local-hostname: devstack
 EOF
 
+echo Genisoimage cloudinit.iso
 genisoimage -quiet -output cloudinit.iso -volid cidata -joliet -rock user-data meta-data &>/dev/null
 
 echo Building ...
@@ -264,7 +260,3 @@ qemu-img convert -f qcow2 -c -O qcow2 devstack0.img $DEST
 
 echo Compressed image size:
 du -h $DEST
-
-#echo Clean ...
-#cd $HOME
-#rm -rf WORKDIR
