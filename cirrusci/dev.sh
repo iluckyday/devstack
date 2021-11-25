@@ -214,9 +214,9 @@ write_files:
         echo enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas >> local.conf
         echo enable_plugin barbican https://opendev.org/openstack/barbican >> local.conf
         echo enable_plugin sahara https://opendev.org/openstack/sahara >> local.conf
-        echo enable_plugin octavia https://opendev.org/openstack/octavia >> local.conf
-        echo ENABLED_SERVICES+=,octavia,o-api,o-cw,o-hk,o-hm,o-da >> local.conf
         echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
+        # echo enable_plugin octavia https://opendev.org/openstack/octavia >> local.conf
+        # echo ENABLED_SERVICES+=,octavia,o-api,o-cw,o-hk,o-hm,o-da >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
