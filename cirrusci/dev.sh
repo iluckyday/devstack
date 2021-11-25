@@ -159,22 +159,65 @@ write_files:
     path: /etc/systemd/system/pmlogger.service.d/opt.conf
   - content: |
          export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null PYTHONWARNINGS=ignore
+         alias osadmin='openstack --os-cloud=devstack-admin --os-region-name=RegionOne'
     owner: stack:stack
     path: /home/stack/.bash.conf
   - content: |
-        export OS_USERNAME=admin
-        export OS_PASSWORD=devstack
-        export OS_AUTH_URL=http://10.0.2.15/identity
-        export OS_AUTH_TYPE=password
-        export OS_TENANT_NAME=admin
-        export OS_PROJECT_NAME=admin
-        export OS_REGION_NAME=RegionOne
-        export OS_IDENTITY_API_VERSION=3
-        export OS_VOLUME_API_VERSION=3
-        export OS_USER_DOMAIN_ID=default
-        export OS_PROJECT_DOMAIN_ID=default
+         [Unit]
+         Description = Devstack loop and mount be ready
+         After=local-fs.target
+         Before=devstack@c-vol.service devstack@s-account.service devstack@s-container.service devstack@s-object.service devstack@s-proxy.service
+         
+         [Service]
+         Type=oneshot
+         ExecStart=/opt/stack/bin/loopmount.sh
+         RemainAfterExsit=yes
+         
+         [Install]
+         WantedBy = multi-user.target
+    path: /etc/systemd/system/devstack@loopmount.service
+         
+  - content: |
+         #!/bin/sh
+         
+         if ! losetup -a | grep -q /opt/stack/data/stack-volumes
+         then
+         	for f in $(ls /opt/stack/data/stack-volumes-*-backing-file)
+         	do
+         		losetup -f --show --direct-io=on $f
+         	done
+         fi
+         
+         mount -t xfs -o loop,noatime,nodiratime,logbufs=8  /opt/stack/data/swift/drives/images/swift.img /opt/stack/data/swift/drives/sdb1
+         
+         exit 0
+    path: /opt/stack/bin/loopmount.sh
     owner: stack:stack
-    path: /home/stack/.adminrc
+    permissions: 0755
+  - content: |
+         #!/bin/sh
+
+         apt remove -y --purge git git-man
+         gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
+         dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
+         lv=$dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
+         dpkg -P --force-depends llvm-$lv
+         
+         find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
+         find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'Etc' -a ! -name '*UTC' -a ! -name '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
+         find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
+         
+         rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
+         rm -rf /root/.cache /home/stack/.cache
+         rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /usr/lib/x86_64-linux-gnu/dri /usr/share/misc/pci.ids /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin /usr/include/* /usr/src/*
+         rm -rf /var/lib/*/*.sqlite /var/lib/mysql/ib_logfile* /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
+         rm -rf /opt/stack/*/*/locale /opt/stack/*/docs /opt/stack/*/*/docs /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/*/{releasenotes,playbooks,.git,doc} /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl
+         rm -rf /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3
+
+         exit 0
+    path: /host/stack/cleanup.sh
+    owner: stack:stack
+    permissions: 0755
   - content: |
         #!/bin/sh
         DEBIAN_FRONTEND=noninteractive sudo apt-get -qqy update || sudo yum update -qy
@@ -185,6 +228,7 @@ write_files:
         git config --global https.sslverify false
         git clone --depth=1 https://opendev.org/openstack/devstack
         cd devstack
+        sed -i 's/qemu-system/qemu-system-x86/' lib/nova_plugins/functions-libvirt
         sed -i 's/sleep 1/sleep 300/' lib/neutron_plugins/ovn_agent
         echo '[[local|localrc]]' > local.conf
         echo ADMIN_PASSWORD=devstack >> local.conf
@@ -203,6 +247,8 @@ write_files:
         echo enable_service s-proxy s-object s-container s-account >> local.conf
         echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
         echo SWIFT_REPLICAS=1 >> local.conf
+        echo SWIFT_LOOPBACK_DISK_SIZE=1T >> local.conf
+        echo VOLUME_BACKING_FILE_SIZE=1T >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=True >> local.conf
@@ -213,10 +259,9 @@ write_files:
         # other services
         echo enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas >> local.conf
         echo enable_plugin barbican https://opendev.org/openstack/barbican >> local.conf
-        echo enable_plugin sahara https://opendev.org/openstack/sahara >> local.conf
+        echo enable_plugin manila https://opendev.org/openstack/manila >> local.conf
+        echo enable_plugin manila-ui https://opendev.org/openstack/manila-ui >> local.conf
         echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
-        # echo enable_plugin octavia https://opendev.org/openstack/octavia >> local.conf
-        # echo ENABLED_SERVICES+=,octavia,o-api,o-cw,o-hk,o-hm,o-da >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
@@ -224,18 +269,16 @@ write_files:
 
 bootcmd:
   - groupadd kvm
-  - useradd -m -s /bin/bash -G kvm stack
+  - useradd -m -s /bin/bash -G kvm,adm,systemd-journal stack
   - echo source .bash.conf >> /home/stack/.bashrc
-  - echo source .adminrc >> /home/stack/.bashrc
 
 runcmd:
-  - touch /etc/cloud/cloud-init.disabled
-  - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - su -l stack ./start.sh
   - sed -i 's/virt_type = qemu/virt_type = kvm/' /etc/nova/nova.conf
-  - rm -rf /var/lib/apt/lists /var/cache/apt /tmp/*
-  - find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
-  - rm -rf /home/stack/devstack /home/stack/start.sh
+  - touch /etc/cloud/cloud-init.disabled
+  - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
+  - systemctl enable devstack@loopmount.service
+  - bash /host/stack/cleanup.sh
 
 power_state:
  mode: poweroff
