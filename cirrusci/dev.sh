@@ -170,7 +170,7 @@ write_files:
          
          [Service]
          Type=oneshot
-         ExecStart=/opt/stack/bin/loopmount.sh
+         ExecStart=/home/stack/loopmount.sh
          RemainAfterExsit=yes
          
          [Install]
@@ -191,7 +191,7 @@ write_files:
          mount -t xfs -o loop,noatime,nodiratime,logbufs=8  /opt/stack/data/swift/drives/images/swift.img /opt/stack/data/swift/drives/sdb1
          
          exit 0
-    path: /opt/stack/bin/loopmount.sh
+    path: /home/stack/loopmount.sh
     owner: stack:stack
     permissions: 0755
   - content: |
