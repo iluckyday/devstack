@@ -196,8 +196,9 @@ write_files:
     permissions: 0755
   - content: |
          #!/bin/sh
+         set -x
 
-         apt remove -y --purge git git-man
+         # apt remove -y --purge git git-man
          gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
          dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
          lv=$(dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
@@ -215,7 +216,7 @@ write_files:
          rm -rf /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3
 
          exit 0
-    path: /host/stack/cleanup.sh
+    path: /home/stack/cleanup.sh
     owner: stack:stack
     permissions: 0755
   - content: |
@@ -247,8 +248,8 @@ write_files:
         echo enable_service s-proxy s-object s-container s-account >> local.conf
         echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
         echo SWIFT_REPLICAS=1 >> local.conf
-        # echo SWIFT_LOOPBACK_DISK_SIZE=1T >> local.conf
-        # echo VOLUME_BACKING_FILE_SIZE=1T >> local.conf
+        echo SWIFT_LOOPBACK_DISK_SIZE=1T >> local.conf
+        echo VOLUME_BACKING_FILE_SIZE=1T >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=True >> local.conf
@@ -278,7 +279,7 @@ runcmd:
   - touch /etc/cloud/cloud-init.disabled
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
   - systemctl enable devstack@loopmount.service
-  - bash /host/stack/cleanup.sh
+  - bash /home/stack/cleanup.sh
 
 power_state:
  mode: poweroff
