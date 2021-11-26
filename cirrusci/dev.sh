@@ -212,21 +212,22 @@ write_files:
          set -x
 
          # apt remove -y --purge git git-man
-         gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
-         dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
-         lv=$(dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
-         dpkg -P --force-depends llvm-$lv
+         # gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
+         # lv=$(dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
+         # dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes llvm-$lv
          
          find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
          find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'Etc' -a ! -name '*UTC' -a ! -name '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
          find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
-         
+        
          rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
          rm -rf /root/.cache /home/stack/.cache
          rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /usr/lib/x86_64-linux-gnu/dri /usr/share/misc/pci.ids /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin /usr/include/* /usr/src/*
          rm -rf /var/lib/*/*.sqlite /var/lib/mysql/ib_logfile* /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
-         rm -rf /opt/stack/*/*/locale /opt/stack/*/docs /opt/stack/*/*/docs /opt/stack/{devstack.subunit,requirements,logs} /opt/stack/*/{releasenotes,playbooks,.git,doc} /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl
+         rm -rf /opt/stack/*/*/locale /opt/stack/*/docs /opt/stack/*/*/docs /opt/stack/{devstack.subunit,requirements,logs/*} /opt/stack/*/{releasenotes,playbooks,.git,doc} /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl
          rm -rf /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3
+
+         rm -rf /home/stack/devstack/files/*
 
          exit 0
     path: /home/stack/cleanup.sh
@@ -265,6 +266,8 @@ write_files:
         echo SYSLOG=True >> local.conf
         echo ENABLE_DEBUG_LOG_LEVEL=True >> local.conf
         echo DEBUG_LIBVIRT=True >> local.conf
+        # disable services
+        echo disable_service tempest >> local.conf
         # more services
         echo enable_service n-novnc n-spice n-sproxy >> local.conf
         echo enable_service s-proxy s-object s-container s-account >> local.conf
