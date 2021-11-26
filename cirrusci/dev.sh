@@ -244,11 +244,6 @@ write_files:
         echo LIBVIRT_TYPE=kvm >> local.conf
         echo API_WORKERS=1 >> local.conf
         echo GIT_DEPTH=1 >> local.conf
-        echo enable_service n-novnc n-spice n-sproxy >> local.conf
-        echo enable_service s-proxy s-object s-container s-account >> local.conf
-        echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
-        echo SWIFT_REPLICAS=1 >> local.conf
-        echo SWIFT_LOOPBACK_DISK_SIZE=1T >> local.conf
         echo VOLUME_BACKING_FILE_SIZE=1T >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
@@ -257,11 +252,18 @@ write_files:
         echo SYSLOG=True >> local.conf
         echo ENABLE_DEBUG_LOG_LEVEL=True >> local.conf
         echo DEBUG_LIBVIRT=True >> local.conf
+        # more services
+        echo enable_service n-novnc n-spice n-sproxy >> local.conf
+        echo enable_service s-proxy s-object s-container s-account >> local.conf
+        echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
+        echo SWIFT_REPLICAS=1 >> local.conf
+        echo SWIFT_LOOPBACK_DISK_SIZE=1T >> local.conf
         # other services
         echo enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas >> local.conf
         echo enable_plugin barbican https://opendev.org/openstack/barbican >> local.conf
         echo enable_plugin manila https://opendev.org/openstack/manila >> local.conf
         echo enable_plugin manila-ui https://opendev.org/openstack/manila-ui >> local.conf
+        echo MANILA_SERVICE_IMAGE_ENABLED=False >> local.conf
         echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
