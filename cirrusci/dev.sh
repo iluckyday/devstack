@@ -26,7 +26,7 @@ curl -kL -# -o devstack0.img $URL
 qemu-img resize devstack0.img 200G
 
 echo Generate cloudinit.iso
-cat << EOF > user-data
+cat << "EOF" > user-data
 #cloud-config
 disable_ec2_metadata: true
 
@@ -43,8 +43,6 @@ users:
 
 apt:
   preserve_sources_list: true
-
-timezone: Asia/Chongqing
 
 output:
   all: '| tee -a /dev/console'
@@ -110,6 +108,7 @@ write_files:
         readline.add_history("# " + time.asctime())
         readline.set_history_length(-1)
     path: /usr/lib/pythonstartup
+    permissions: 0755
   - content: |
         GRUB_CMDLINE_LINUX_DEFAULT="\$GRUB_CMDLINE_LINUX_DEFAULT intel_iommu=on"
     path: /etc/default/grub.d/90-intel_iommu.cfg
@@ -162,6 +161,20 @@ write_files:
          alias osadmin='openstack --os-cloud=devstack-admin --os-region-name=RegionOne'
     owner: stack:stack
     path: /home/stack/.bash.conf
+  - content: |
+        export OS_USERNAME=admin
+        export OS_PASSWORD=devstack
+        export OS_AUTH_URL=http://10.0.2.15/identity
+        export OS_AUTH_TYPE=password
+        export OS_TENANT_NAME=admin
+        export OS_PROJECT_NAME=admin
+        export OS_REGION_NAME=RegionOne
+        export OS_IDENTITY_API_VERSION=3
+        export OS_VOLUME_API_VERSION=3
+        export OS_USER_DOMAIN_ID=default
+        export OS_PROJECT_DOMAIN_ID=default
+    owner: stack:stack
+    path: /home/stack/.adminrc
   - content: |
          [Unit]
          Description = Devstack loop and mount be ready
@@ -274,6 +287,9 @@ bootcmd:
   - groupadd kvm
   - useradd -m -s /bin/bash -G kvm,adm,systemd-journal stack
   - echo source .bash.conf >> /home/stack/.bashrc
+  - echo source .adminrc >> /home/stack/.bashrc
+  - echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > /etc/sudoers.d/env_keep
+  - chmod 440 /etc/sudoers.d/env_keep
 
 runcmd:
   - su -l stack ./start.sh
