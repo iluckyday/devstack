@@ -200,7 +200,7 @@ write_files:
          apt remove -y --purge git git-man
          gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
          dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes
-         lv=$dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
+         lv=$(dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
          dpkg -P --force-depends llvm-$lv
          
          find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
@@ -247,8 +247,8 @@ write_files:
         echo enable_service s-proxy s-object s-container s-account >> local.conf
         echo SWIFT_HASH=d90042a57d537bd2ce9ed43535fc90ac >> local.conf
         echo SWIFT_REPLICAS=1 >> local.conf
-        echo SWIFT_LOOPBACK_DISK_SIZE=1T >> local.conf
-        echo VOLUME_BACKING_FILE_SIZE=1T >> local.conf
+        # echo SWIFT_LOOPBACK_DISK_SIZE=1T >> local.conf
+        # echo VOLUME_BACKING_FILE_SIZE=1T >> local.conf
         echo SERVICE_TIMEOUT=600 >> local.conf
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=True >> local.conf
