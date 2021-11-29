@@ -281,6 +281,7 @@ write_files:
         echo enable_plugin manila-ui https://opendev.org/openstack/manila-ui >> local.conf
         echo MANILA_SERVICE_IMAGE_ENABLED=False >> local.conf
         echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
+        echo enable_plugin freezer https://opendev.org/openstack/freezer >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
