@@ -282,6 +282,9 @@ write_files:
         echo MANILA_SERVICE_IMAGE_ENABLED=False >> local.conf
         echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
         echo enable_plugin freezer https://opendev.org/openstack/freezer >> local.conf
+        echo enable_plugin freezer-api https://opendev.org/openstack/freezer-api >> local.conf
+        echo enable_plugin freezer-web-ui https://opendev.org/openstack/freezer-web-ui >> local.conf
+        echo FREEZER_BACKEND='sqlalchemy' >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
