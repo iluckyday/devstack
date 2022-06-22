@@ -23,7 +23,7 @@ cd $WORKDIR
 rm -rf devstack.img devstack0.img cloudinit.iso user-data meta-data
 curl -kL -# -o devstack0.img $URL
 
-qemu-img resize devstack0.img 200G
+qemu-img resize devstack0.img 10G
 
 echo Generate cloudinit.iso
 cat << "EOF" > user-data
@@ -228,6 +228,13 @@ write_files:
          rm -rf /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3
 
          rm -rf /home/stack/devstack/files/*
+
+         dd if=/dev/zero of=/tmp/bigfile
+         sync
+         sync
+         rm /tmp/bigfile
+         sync
+         sync
 
          exit 0
     path: /home/stack/cleanup.sh

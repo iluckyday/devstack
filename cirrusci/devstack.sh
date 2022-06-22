@@ -25,7 +25,7 @@ motd-news.timer"
 
 apt-config dump | grep -we Recommends -e Suggests | sed 's/1/0/' | tee /etc/apt/apt.conf.d/99norecommends
 
-qemu-img create -f raw /tmp/devstack.raw 201G
+qemu-img create -f raw /tmp/devstack.raw 10G
 loopx=$(losetup --show -f -P /tmp/devstack.raw)
 mkfs.ext4 -F -L ubuntu-root -b 1024 -I 128 -O "^has_journal" $loopx
 mount $loopx ${mount_dir}
@@ -343,6 +343,12 @@ mkdir -p /home/stack/.ssh
 chmod 700 /home/stack/.ssh
 echo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp > /home/stack/.ssh/authorized_keys
 chmod 600 home/stack/.ssh/authorized_keys
+dd if=/dev/zero of=/tmp/bigfile
+sync
+sync
+rm /tmp/bigfile
+sync
+sync
 "
 
 sync ${mount_dir}
