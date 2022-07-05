@@ -3,10 +3,11 @@
 DEVSTACK_BRANCH=master
 
 CLOUD_IMAGES_URL=http://cloud-images.ubuntu.com/releases
+CLOUD_IMAGES_DOWNLOAD_URL=http://cloud-images.ubuntu.com
 CLOUD_IMAGES_PAGE=$(curl -skL ${CLOUD_IMAGES_URL})
 LTS_LATEST_VERSION=$(echo "${CLOUD_IMAGES_PAGE}" | grep -oP "Server \K(.*) (?=LTS)" | sort -r | head -n 1)
 LTS_LATEST_NAME=$(echo "${CLOUD_IMAGES_PAGE}" | grep "${LTS_LATEST_VERSION}" | grep -oP "LTS \(\K([a-zA-Z]*)" | head -n 1 | tr [:upper:] [:lower:])
-URL=${CLOUD_IMAGES_URL}/${LTS_LATEST_NAME}/current/${LTS_LATEST_NAME}-server-cloudimg-amd64.img
+URL=${CLOUD_IMAGES_DOWNLOAD_URL}/${LTS_LATEST_NAME}/current/${LTS_LATEST_NAME}-server-cloudimg-amd64.img
 
 DEST=/dev/shm/devstack-dev.img
 WORKDIR=$(mktemp -d /tmp/devstack.XXXXXXXXX)
