@@ -285,6 +285,7 @@ bootcmd:
   - echo 'source ~/devstack/openrc admin admin' >> /home/stack/.bashrc
   - echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > /etc/sudoers.d/env_keep
   - chmod 440 /etc/sudoers.d/env_keep
+  - locale-gen C.UTF-8
 
 runcmd:
   - su -l stack ./start.sh
