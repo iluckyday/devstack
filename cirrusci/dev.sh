@@ -2,10 +2,10 @@
 
 DEVSTACK_BRANCH=master
 
-CLOUD_IMAGES_URL=http://cloud-images.ubuntu.com
+CLOUD_IMAGES_URL=http://cloud-images.ubuntu.com/releases
 CLOUD_IMAGES_PAGE=$(curl -skL ${CLOUD_IMAGES_URL})
 LTS_LATEST_VERSION=$(echo "${CLOUD_IMAGES_PAGE}" | grep -oP "Server \K(.*) (?=LTS)" | sort -r | head -n 1)
-LTS_LATEST_NAME=$(echo "${CLOUD_IMAGES_PAGE}" | grep "${LTS_LATEST_VERSION}" | grep -oP "LTS \(\K([a-zA-Z]*)" | tr [:upper:] [:lower:])
+LTS_LATEST_NAME=$(echo "${CLOUD_IMAGES_PAGE}" | grep "${LTS_LATEST_VERSION}" | grep -oP "LTS \(\K([a-zA-Z]*)" | head -n 1 | tr [:upper:] [:lower:])
 URL=${CLOUD_IMAGES_URL}/${LTS_LATEST_NAME}/current/${LTS_LATEST_NAME}-server-cloudimg-amd64.img
 
 DEST=/dev/shm/devstack-dev.img
@@ -162,20 +162,6 @@ write_files:
     owner: stack:stack
     path: /home/stack/.bash.conf
   - content: |
-        export OS_USERNAME=admin
-        export OS_PASSWORD=devstack
-        export OS_AUTH_URL=http://10.0.2.15/identity
-        export OS_AUTH_TYPE=password
-        export OS_TENANT_NAME=admin
-        export OS_PROJECT_NAME=admin
-        export OS_REGION_NAME=RegionOne
-        export OS_IDENTITY_API_VERSION=3
-        export OS_VOLUME_API_VERSION=3
-        export OS_USER_DOMAIN_ID=default
-        export OS_PROJECT_DOMAIN_ID=default
-    owner: stack:stack
-    path: /home/stack/.adminrc
-  - content: |
          [Unit]
          Description = Devstack loop and mount be ready
          After=local-fs.target
@@ -301,7 +287,6 @@ bootcmd:
   - groupadd kvm
   - useradd -m -s /bin/bash -G kvm,adm,systemd-journal stack
   - echo source .bash.conf >> /home/stack/.bashrc
-  - echo source .adminrc >> /home/stack/.bashrc
   - echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > /etc/sudoers.d/env_keep
   - chmod 440 /etc/sudoers.d/env_keep
 
@@ -309,7 +294,7 @@ runcmd:
   - su -l stack ./start.sh
   - sed -i 's/virt_type = qemu/virt_type = kvm/' /etc/nova/nova.conf
   - touch /etc/cloud/cloud-init.disabled
-  - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer fstrim.timer motd-news.timer unattended-upgrades.service
+  - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer fwupd-refresh.timer logrotate.timer man-db.timer motd-news.timer unattended-upgrades.service
   - systemctl enable devstack@loopmount.service
   - bash /home/stack/cleanup.sh
 
