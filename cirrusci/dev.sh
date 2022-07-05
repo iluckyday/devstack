@@ -203,7 +203,7 @@ write_files:
          # lv=$(dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
          # dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes llvm-$lv
          
-         find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -a ! -name 'en_US' -prune -exec rm -rf {} +
+         find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name locale-archive -prune -exec rm -rf {} +
          find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'Etc' -a ! -name '*UTC' -a ! -name '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
          find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
         
@@ -282,7 +282,7 @@ write_files:
 bootcmd:
   - groupadd kvm
   - useradd -m -s /bin/bash -G kvm,adm,systemd-journal stack
-  - echo source .bash.conf >> /home/stack/.bashrc
+  - echo 'source ~/devstack/openrc admin admin' >> /home/stack/.bashrc
   - echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > /etc/sudoers.d/env_keep
   - chmod 440 /etc/sudoers.d/env_keep
 
