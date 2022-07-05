@@ -210,18 +210,11 @@ write_files:
          rm -rf /etc/libvirt/qemu/networks/autostart/default.xml
          rm -rf /root/.cache /home/stack/.cache
          rm -rf /usr/share/doc /usr/local/share/doc /usr/share/man /usr/share/icons /usr/share/fonts /usr/share/X11 /usr/share/AAVMF /usr/share/OVMF /usr/lib/x86_64-linux-gnu/dri /usr/share/misc/pci.ids /usr/share/ieee-data /usr/share/sphinx /usr/share/python-wheels /usr/share/fonts/truetype /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin /usr/include/* /usr/src/*
-         rm -rf /var/lib/*/*.sqlite /var/lib/mysql/ib_logfile* /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
+         rm -rf /var/lib/*/*.sqlite /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
          rm -rf /opt/stack/*/*/locale /opt/stack/*/docs /opt/stack/*/*/docs /opt/stack/{devstack.subunit,requirements,logs/*} /opt/stack/*/{releasenotes,playbooks,.git,doc} /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl
          rm -rf /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3
 
          rm -rf /home/stack/devstack/files/*
-
-         dd if=/dev/zero of=/tmp/bigfile
-         sync
-         sync
-         rm /tmp/bigfile
-         sync
-         sync
 
          exit 0
     path: /home/stack/cleanup.sh
@@ -262,6 +255,8 @@ write_files:
         echo DEBUG_LIBVIRT=True >> local.conf
         # disable services
         echo disable_service tempest >> local.conf
+        echo disable_service mysql >> local.conf
+        echo enable_service postgresql >> local.conf
         # more services
         echo enable_service n-novnc n-spice n-sproxy >> local.conf
         echo enable_service s-proxy s-object s-container s-account >> local.conf
