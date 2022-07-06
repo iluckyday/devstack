@@ -208,14 +208,14 @@ write_files:
          # lv=$(dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
          # dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes llvm-$lv
 
-         snaps=$(snap list | grep -v "^Name" | awk {'print $1'})
-         for s in $snaps; do
-         	snap remove $s
-         done
+         # snaps=$(snap list | grep -v "^Name" | awk {'print $1'})
+         # for s in $snaps; do
+         # 	snap remove $s
+         # done
          apt remove -y --purge --autoremove snapd
          rm -rf ~/snap /snap /var/snap /var/lib/snapd
          
-         # find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name locale-archive -prune -exec rm -rf {} +
+         find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name locale-archive -a ! -name C.utf8 -prune -exec rm -rf {} +
          find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'Etc' -a ! -name '*UTC' -a ! -name '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
          find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
         
@@ -226,6 +226,7 @@ write_files:
          rm -rf /opt/stack/*/*/locale /opt/stack/*/docs /opt/stack/*/*/docs /opt/stack/{devstack.subunit,requirements,logs/*} /opt/stack/*/{releasenotes,playbooks,.git,doc} /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl
          rm -rf /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3
          rm -rf /opt/stack/data/etcd/* /var/lib/rabbitmq/mnesia/rabbit@devstack/*
+         rm -rf /var/log/journal
 
          rm -rf /home/stack/devstack/files/*
 
@@ -263,7 +264,7 @@ write_files:
         echo DOWNLOAD_DEFAULT_IMAGES=True >> local.conf
         echo NEUTRON_CREATE_INITIAL_NETWORKS=True >> local.conf
         echo VERBOSE=True >> local.conf
-        echo SYSLOG=True >> local.conf
+        echo SYSLOG=False >> local.conf
         echo ENABLE_DEBUG_LOG_LEVEL=True >> local.conf
         echo DEBUG_LIBVIRT=True >> local.conf
         # disable services
@@ -298,7 +299,6 @@ bootcmd:
   - echo 'source ~/devstack/openrc admin admin' >> /home/stack/.bashrc
   - echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > /etc/sudoers.d/env_keep
   - chmod 440 /etc/sudoers.d/env_keep
-  # - locale-gen C.UTF-8
 
 runcmd:
   - su -l stack ./start.sh
