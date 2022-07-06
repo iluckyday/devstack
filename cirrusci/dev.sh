@@ -203,7 +203,7 @@ write_files:
          # lv=$(dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
          # dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes llvm-$lv
          
-         find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name locale-archive -prune -exec rm -rf {} +
+         # find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name locale-archive -prune -exec rm -rf {} +
          find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'Etc' -a ! -name '*UTC' -a ! -name '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
          find /usr /opt -type d -name __pycache__ -prune -exec rm -rf {} +
         
@@ -285,11 +285,12 @@ bootcmd:
   - echo 'source ~/devstack/openrc admin admin' >> /home/stack/.bashrc
   - echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > /etc/sudoers.d/env_keep
   - chmod 440 /etc/sudoers.d/env_keep
-  - locale-gen C.UTF-8
+  # - locale-gen C.UTF-8
 
 runcmd:
   - su -l stack ./start.sh
   - sed -i 's/virt_type = qemu/virt_type = kvm/' /etc/nova/nova.conf
+  - openstack complete > /etc/bash_completion.d/osc.bash_completion
   - touch /etc/cloud/cloud-init.disabled
   - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer fwupd-refresh.timer logrotate.timer man-db.timer motd-news.timer unattended-upgrades.service
   - systemctl enable devstack@loopmount.service
