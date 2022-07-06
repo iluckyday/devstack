@@ -165,6 +165,7 @@ write_files:
   - content: |
          export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null PYTHONWARNINGS=ignore
          alias osadmin='openstack --os-cloud=devstack-admin --os-region-name=RegionOne'
+         source ~/devstack/openrc admin admin
     owner: stack:stack
     path: /home/stack/.bash.conf
   - content: |
@@ -296,7 +297,7 @@ write_files:
 bootcmd:
   - groupadd kvm
   - useradd -m -s /bin/bash -G kvm,adm,systemd-journal stack
-  - echo 'source ~/devstack/openrc admin admin' >> /home/stack/.bashrc
+  - echo 'source ~/.bash.conf' >> /home/stack/.bashrc
   - echo 'Defaults env_keep+="PYTHONDONTWRITEBYTECODE"' > /etc/sudoers.d/env_keep
   - chmod 440 /etc/sudoers.d/env_keep
 
@@ -305,7 +306,7 @@ runcmd:
   - sed -i 's/virt_type = qemu/virt_type = kvm/' /etc/nova/nova.conf
   - openstack complete > /etc/bash_completion.d/osc.bash_completion
   - touch /etc/cloud/cloud-init.disabled
-  - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer fwupd-refresh.timer logrotate.timer man-db.timer motd-news.timer unattended-upgrades.service
+  - systemctl -f mask apt-daily.timer apt-daily-upgrade.timer e2scrub_all.timer fstrim.timer fwupd-refresh.timer logrotate.timer man-db.timer motd-news.timer unattended-upgrades.service update-notifier-download.timer ua-timer.timer dpkg-db-backup.timer update-notifier-motd.timer
   - systemctl enable devstack@loopmount.service
   - bash /home/stack/cleanup.sh
 
