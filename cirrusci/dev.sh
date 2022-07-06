@@ -77,6 +77,11 @@ write_files:
         path-exclude /lib/modules/*/sound*
     path: /etc/dpkg/dpkg.cfg.d/99nofiles
   - content: |
+        Package: snapd
+        Pin: origin *
+        Pin-Priority: -10
+    path: /etc/apt/preferences.d/snapd
+  - content: |
         [Match]
         Name=en*
 
@@ -202,6 +207,13 @@ write_files:
          # gv=$(dpkg -l | grep "GNU C compiler" | awk '/gcc-/ {gsub("gcc-","",$2);print $2}')
          # lv=$(dpkg -l | awk '/llvm-/ {gsub("llvm-","",$2);print $2;exit}')
          # dpkg -P --force-depends gcc-$gv libgcc-$gv-dev g++-$gv cpp cpp-$gv iso-codes llvm-$lv
+
+         snaps=$(snap list | grep -v "^Name" | awk {'print $1'})
+         for s in $snaps; do
+         	snap remove $s
+         done
+         apt remove -y --purge --autoremove snapd
+         rm -rf ~/snap /snap /var/snap /var/lib/snapd
          
          # find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name locale-archive -prune -exec rm -rf {} +
          find /usr/share/zoneinfo -mindepth 1 -maxdepth 2 ! -name 'UTC' -a ! -name 'UCT' -a ! -name 'Etc' -a ! -name '*UTC' -a ! -name '*UCT' -a ! -name 'PRC' -a ! -name 'Asia' -a ! -name '*Shanghai' -prune -exec rm -rf {} +
@@ -213,6 +225,7 @@ write_files:
          rm -rf /var/lib/*/*.sqlite /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
          rm -rf /opt/stack/*/*/locale /opt/stack/*/docs /opt/stack/*/*/docs /opt/stack/{devstack.subunit,requirements,logs/*} /opt/stack/*/{releasenotes,playbooks,.git,doc} /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl
          rm -rf /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3
+         rm -rf /opt/stack/data/etcd/* /var/lib/rabbitmq/mnesia/rabbit@devstack/*
 
          rm -rf /home/stack/devstack/files/*
 
