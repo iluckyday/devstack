@@ -226,7 +226,6 @@ write_files:
          rm -rf /var/lib/*/*.sqlite /tmp/* /var/tmp/* /var/cache/apt/* /var/lib/apt/lists/*
          rm -rf /opt/stack/*/*/locale /opt/stack/*/docs /opt/stack/*/*/docs /opt/stack/{devstack.subunit,requirements,logs/*} /opt/stack/*/{releasenotes,playbooks,.git,doc} /opt/stack/data/etcd/member/wal/0.tmp /opt/stack/bin/etcdctl
          rm -rf /usr/bin/systemd-analyze /usr/bin/perl*.* /usr/bin/sqlite3
-         rm -rf /opt/stack/data/etcd/* /var/lib/rabbitmq/mnesia/rabbit@devstack/*
          rm -rf /var/log/journal
 
          rm -rf /home/stack/devstack/files/*
