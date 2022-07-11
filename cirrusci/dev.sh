@@ -94,6 +94,7 @@ write_files:
 
         [Network]
         Address=172.24.4.1/24
+        Address=2001:db8::2/64
     path: /etc/systemd/network/30-br-ex.network
   - content: |
         network: {config: disabled}
@@ -280,14 +281,18 @@ write_files:
         # other services
         echo enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas >> local.conf
         echo enable_plugin barbican https://opendev.org/openstack/barbican >> local.conf
-        echo enable_plugin manila https://opendev.org/openstack/manila >> local.conf
-        echo enable_plugin manila-ui https://opendev.org/openstack/manila-ui >> local.conf
-        echo MANILA_SERVICE_IMAGE_ENABLED=False >> local.conf
+        # echo enable_plugin manila https://opendev.org/openstack/manila >> local.conf
+        # echo enable_plugin manila-ui https://opendev.org/openstack/manila-ui >> local.conf
+        # echo MANILA_SERVICE_IMAGE_ENABLED=False >> local.conf
         echo enable_plugin designate https://opendev.org/openstack/designate >> local.conf
-        echo enable_plugin freezer https://opendev.org/openstack/freezer >> local.conf
-        echo enable_plugin freezer-api https://opendev.org/openstack/freezer-api >> local.conf
-        echo enable_plugin freezer-web-ui https://opendev.org/openstack/freezer-web-ui >> local.conf
-        echo FREEZER_BACKEND='sqlalchemy' >> local.conf
+        echo enable_service designate,designate-central,designate-api,designate-worker,designate-producer,designate-mdns >> local.conf
+        echo DESIGNATE_BACKEND_DRIVER=bind9 >> local.conf
+        # echo enable_plugin freezer https://opendev.org/openstack/freezer >> local.conf
+        # echo enable_plugin freezer-api https://opendev.org/openstack/freezer-api >> local.conf
+        # echo enable_plugin freezer-web-ui https://opendev.org/openstack/freezer-web-ui >> local.conf
+        # echo FREEZER_BACKEND='sqlalchemy' >> local.conf
+        echo enable_plugin skydive https://github.com/skydive-project/skydive >> local.conf
+        echo enable_service skydive-agent skydive-analyzer >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
