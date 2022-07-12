@@ -291,8 +291,8 @@ write_files:
         # echo enable_plugin freezer-api https://opendev.org/openstack/freezer-api >> local.conf
         # echo enable_plugin freezer-web-ui https://opendev.org/openstack/freezer-web-ui >> local.conf
         # echo FREEZER_BACKEND='sqlalchemy' >> local.conf
-        echo enable_plugin skydive https://github.com/skydive-project/skydive >> local.conf
-        echo enable_service skydive-agent skydive-analyzer >> local.conf
+        # echo enable_plugin skydive https://github.com/skydive-project/skydive >> local.conf
+        # echo enable_service skydive-agent skydive-analyzer >> local.conf
         ./stack.sh
     path: /home/stack/start.sh
     owner: stack:stack
